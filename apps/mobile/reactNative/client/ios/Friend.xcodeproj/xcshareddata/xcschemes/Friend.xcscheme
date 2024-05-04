@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
+<<<<<<< HEAD:apps/AppStandalone/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+   LastUpgradeVersion = "1510"
+=======
    LastUpgradeVersion = "1210"
+>>>>>>> fullStack-react-native:apps/mobile/reactNative/client/ios/Friend.xcodeproj/xcshareddata/xcschemes/Friend.xcscheme
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"

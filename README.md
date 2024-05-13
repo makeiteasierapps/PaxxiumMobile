@@ -1,48 +1,64 @@
-<div align="center">
+# Under Construction
+- Over the next couple days I will be refactoring so code will move around. I have also done very little for the UI. My goal is to get the functionality working first. If someone wants to work on something the UI would be the place to start for now.
 
-# **Friend**
+## Overview
+This document provides a preliminary overview of the mobile application development process. Detailed instructions and further documentation will be provided at a later stage.
 
-Open Source AI Wearable device that records everything you say, gives you proactive feedback and advice. 24h+ on single charge.
+## Requirements
+- **MongoDB**: Ensure MongoDB is set up and accessible.
+- **Google Cloud Accounts**: Required for various cloud services.
+- **API Keys**: Obtain necessary API keys from Deepgram and OpenAI.
 
-![Friend Image](https://github.com/BasedHardware/Friend/assets/43514161/1d504d29-1988-4482-8254-665b0bf8a264)
+## Environment Setup
 
-[![Discord Follow](https://dcbadge.vercel.app/api/server/kEXXsnb5b3?style=flat)](https://discord.gg/kEXXsnb5b3) &ensp;&ensp;&ensp;
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)&ensp;&ensp;&ensp;
-[![GitHub Repo stars](https://img.shields.io/github/stars/BasedHardware/Friend)](https://github.com/BasedHardware/Friend)
+### Dependencies
+- From the friend directory, run `npm install` to install all dependencies
 
-<h3>
+- `python -m venv venv` to create a virtual environment
+- `source venv/bin/activate` to activate the virtual environment
+- `pip install -r requirements.txt` to install all Python dependencies
 
-[Homepage](https://basedhardware.com/) | [Documentation](https://basedhardware.github.io/Friend/) | [Buy Assembled Device](https://www.kickstarter.com/projects/kodjima333/friend-open-source-ai-wearable-recording-device?ref=7wc2iz)
+### Server Environment Variables
+- `OPENAI_API_KEY`: (Specify your OpenAI API key here)
+- `LOCAL_DEV`: 'True'
+- `MONGO_URI`: (Specify your MongoDB URI here)
 
-</h3>
+### Client Environment Variables
+- `BACKEND_URL`: "Your local IP address"
+- `DEEPGRAM_API_KEY`: (Specify your Deepgram API key here)
 
-</div>
+## Running the Application
 
-## Features
+### Starting the Server
+Navigate to the `server/functions` directory and run:
 
-- **Real-Time AI Audio Processing**: Leverage powerful on-device AI capabilities for real-time audio analysis.
-- **Low-powered Bluetooth**: Capture audio for 24h+ on a small button battery
-- **Open-Source Software**: Access and contribute to the pin's software stack, designed with openness and community collaboration in mind.
-- **Wearable Design**: Experience unparalleled convenience with ergonomic and lightweight design, perfect for everyday wear.
+```./launchLocally.sh```
 
 
-## Get Started with our Documentation:
-- [Introduction](https://basedhardware.github.io/Friend/)
-- [App setup](https://basedhardware.github.io/Friend/get_started/Setup/)
-- [Buying Guide](https://basedhardware.github.io/Friend/assembly/Buying_Guide/)
-- [Build the device](https://basedhardware.github.io/Friend/assembly/Build_the_device/)
-- [Install firmware](https://basedhardware.github.io/Friend/assembly/Install_firmware/)
+### Starting the Client
+For iOS:
+```npm run ios```
 
-## More links:
-- [Contributing](https://basedhardware.github.io/Friend/info/Contribution/)
-- [Support](https://basedhardware.github.io/Friend/info/Support/)
+For Android (untested):
 
-## Made by the Community, with -❤️-:
+```npm run android```
 
-<a href="https://github.com/BasedHardware/Friend/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=BasedHardware/Friend" />
-</a>
 
-## Licensing
 
-Friend is available under MIT License
+## Streaming Flow
+1. **Start**: Press 'Record' to start streaming.
+2. **Silence Detection**: If 30 seconds of silence is detected, the previous stream ends and a new moment is created.
+3. **Token Handling**: During a long stream, if the token counter exceeds 500 tokens, that chunk is sent off for extraction. A new moment and snapshot are created in the database and UI.
+4. **Extraction and Embedding**: Every 500 tokens are captured, extracted, and embedded.
+5. **Updates**: The AI compares the summary, title, and action items from the next snapshot to the previous one, updating the UI with a 'rolling extraction'.
+6. **Storage**: Each chunk is stored individually, but the Moment is updated with the most recent snapshot.
+
+## Chat Functionality
+Chat will always query the knowledge base. I would like to add the ability to turn that on or off.
+
+## BLE Device
+
+When tha app starts the device detection happens automatically. Your friend should be waiting for you when you get to settings. If no device is connected the app will use the phone's microphone.
+
+## Future Updates
+Further details and instructions will be provided as development progresses.

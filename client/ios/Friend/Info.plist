@@ -6,6 +6,8 @@
 	<string>We need your permission to use the bluetooth.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We need your permission to use the microphone.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos and videos.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>

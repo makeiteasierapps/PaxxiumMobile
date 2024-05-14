@@ -2,11 +2,13 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MomentsStackNavigator from '../navigators/MomentsStackNavigator';
 import SettingsStackNavigator from '../navigators/SettingsStackNavigator';
 import ChatStackNavigator from '../navigators/ChatStackNavigator';
+import VisionStackNavigator from '../navigators/VisionStackNavigator';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faComment,
   faCameraRetro,
   faCog,
+  faEye,
 } from '@fortawesome/free-solid-svg-icons';
 
 const Tab = createBottomTabNavigator();
@@ -41,6 +43,17 @@ const MainScreen = () => {
           tabBarIcon: ({color}) => {
             return (
               <FontAwesomeIcon icon={faCameraRetro} size={24} color={color} />
+            );
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Vision"
+        component={VisionStackNavigator}
+        options={{
+          tabBarIcon: ({color}) => {
+            return (
+              <FontAwesomeIcon icon={faEye} size={24} color={color} />
             );
           },
         }}

@@ -1,4 +1,6 @@
-dspy-ai[mongodb]
+dspy-ai[mongodb]==2.4.9
 pymongo[srv]==4.6.3
 functions-framework==3.5.0
 load-dotenv==0.1.0
+tiktoken==0.7.0
+openai==1.30.1

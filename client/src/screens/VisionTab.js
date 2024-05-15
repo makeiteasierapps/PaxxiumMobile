@@ -1,17 +1,26 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {View, Text, Button, StyleSheet, Alert} from 'react-native';
+import React, {useState, useRef, useEffect, useCallback, useMemo} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import {
   useCameraPermission,
   useCameraDevice,
   Camera,
   CameraRuntimeError,
-  CameraCaptureError,
 } from 'react-native-vision-camera';
 
 const VisionTab = () => {
   const [isActive, setIsActive] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
+  const [capturedFrame, setCapturedFrame] = useState(null);
+  const [isStreaming, setIsStreaming] = useState(false);
   const cameraRef = useRef(null);
+  const intervalRef = useRef(null);
   const device = useCameraDevice('back');
   const {hasPermission, requestPermission} = useCameraPermission();
 
@@ -21,62 +30,103 @@ const VisionTab = () => {
         const status = await requestPermission();
         if (status !== 'granted') {
           Alert.alert('Camera permission is required');
+        } else {
+          setIsActive(true);
         }
+      } else {
+        setIsActive(true);
       }
     };
     checkPermissions();
   }, [hasPermission, requestPermission]);
 
-  const handleActivateCamera = () => {
-    if (hasPermission) {
-      setIsActive(true);
-    } else {
-      Alert.alert('Camera permission is required');
+  const format = useMemo(() => {
+    if (device) {
+      return device.formats
+        .filter(
+          f =>
+            f.videoStabilizationModes && f.videoStabilizationModes.length > 0,
+        )
+        .sort(
+          (a, b) => b.photoWidth * b.photoHeight - a.photoWidth * a.photoHeight,
+        )[0];
     }
-  };
+    return null;
+  }, [device]);
 
-  const handleTakePhoto = async () => {
-    if (cameraRef.current) {
-      try {
-        const photo = await cameraRef.current.takePhoto();
-        Alert.alert('Photo taken!', `Photo path: ${photo.path}`);
-      } catch (error) {
-        if (error instanceof CameraCaptureError) {
-          Alert.alert('Capture Error', error.message);
-        } else {
-          console.error('Failed to take photo', error);
+  const startStreaming = useCallback(() => {
+    if (isStreaming) {
+      clearInterval(intervalRef.current);
+      setIsStreaming(false);
+      return;
+    }
+    setIsStreaming(true);
+    if (isCameraReady) {
+      intervalRef.current = setInterval(async () => {
+        if (cameraRef.current) {
+          const photo = await cameraRef.current.takePhoto({
+            quality: 'high',
+            skipMetadata: true,
+          });
+          setCapturedFrame(photo.path);
         }
-      }
+      }, 3000);
     }
-  };
+  }, [isStreaming, isCameraReady]);
 
-  const handleCameraError = error => {
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const handleCameraError = useCallback(error => {
     if (error instanceof CameraRuntimeError) {
       Alert.alert('Camera Error', error.message);
     } else {
       console.error('Camera error', error);
     }
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
-      {isActive && device ? (
-        <Camera
-          ref={cameraRef}
-          style={styles.camera}
-          device={device}
-          isActive={isActive}
-          photo={true}
-          onInitialized={() => setIsCameraReady(true)}
-          onError={handleCameraError}
+      <View style={styles.halfHeight}>
+        {isActive && device ? (
+          <Camera
+            ref={cameraRef}
+            style={styles.camera}
+            device={device}
+            isActive={isActive}
+            photo={true}
+            onInitialized={() => setIsCameraReady(true)}
+            onError={handleCameraError}
+            format={format}
+            videoStabilizationMode={format?.videoStabilizationModes[0]}
+            photoHdr={true}
+          />
+        ) : (
+          <View style={styles.placeholder}>
+            <Text>Camera is not active</Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.halfHeight}>
+        {capturedFrame ? (
+          <Image source={{uri: capturedFrame}} style={styles.image} />
+        ) : (
+          <View style={styles.placeholder}>
+            <Text>No image captured</Text>
+          </View>
+        )}
+      </View>
+      {isCameraReady && (
+        <TouchableOpacity
+          style={[styles.button, isStreaming && styles.buttonStreaming]}
+          onPress={startStreaming}
         />
-      ) : (
-        <View style={styles.placeholder}>
-          <Text>Camera is not active</Text>
-          <Button title="Activate Camera" onPress={handleActivateCamera} />
-        </View>
       )}
-      {isCameraReady && <Button title="Take Photo" onPress={handleTakePhoto} />}
     </View>
   );
 };
@@ -84,20 +134,39 @@ const VisionTab = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  },
+  halfHeight: {
+    width: '100%',
+    height: '50%',
   },
   camera: {
     width: '100%',
-    height: '50%',
+    height: '100%',
   },
   placeholder: {
     width: '100%',
-    height: '50%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ccc',
   },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  button: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 30,
+    alignSelf: 'center',
+  },
+  buttonStreaming: {
+    backgroundColor: 'red',
+  },
 });
-
 export default VisionTab;

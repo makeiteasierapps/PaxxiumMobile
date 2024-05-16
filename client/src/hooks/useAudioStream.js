@@ -56,13 +56,6 @@ const useAudioStream = () => {
     }
   };
 
-  const resetSilenceTimer = () => {
-    silenceTimer.current = setTimeout(() => {
-      createOrUpdateMoment(streamingTranscript.current);
-      streamingTranscript.current = '';
-    }, 30000);
-  };
-
   const startRecording = async () => {
     // Check for connected Bluetooth peripherals
     const connectedPeripherals = await BleManager.getConnectedPeripherals([
@@ -113,24 +106,30 @@ const useAudioStream = () => {
     console.log('Silence detected');
     if (!lastWasSilence) {
       setLastWasSilence(true);
-      resetSilenceTimer();
     }
   };
 
-  const handleWordDetected = transcribedWord => {
-    clearTimeout(silenceTimer.current);
+  // I want to make this more generic, maybe I pass in the specific state that I want
+  // to update.
+  const handleWordDetected = (type, transcribedWord) => {
     setLastWasSilence(false);
 
-    const tokens = countTokens(transcribedWord);
-    tokenCount.current += tokens;
-    streamingTranscript.current += ' ' + transcribedWord;
-    setDisplayTranscript(prev => prev + ' ' + transcribedWord);
+    if (type === 'moment') {
+      const tokens = countTokens(transcribedWord);
+      tokenCount.current += tokens;
+      streamingTranscript.current += ' ' + transcribedWord;
+      setDisplayTranscript(prev => prev + ' ' + transcribedWord);
 
-    if (tokenCount.current >= 100) {
-      console.log('Token count reached', tokenCount.current);
-      createOrUpdateMoment(streamingTranscript.current);
-      streamingTranscript.current = '';
-      tokenCount.current = 0;
+      if (tokenCount.current >= 100) {
+        console.log('Token count reached', tokenCount.current);
+        createOrUpdateMoment(streamingTranscript.current);
+        streamingTranscript.current = '';
+        tokenCount.current = 0;
+      }
+    }
+
+    if (type === 'sam') {
+      // update VisionTab state
     }
   };
 

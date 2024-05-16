@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {
   useCameraPermission,
-  useCameraDevice,
+  useCameraDevices,
   Camera,
   CameraRuntimeError,
 } from 'react-native-vision-camera';
@@ -19,10 +19,12 @@ const VisionTab = () => {
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [capturedFrame, setCapturedFrame] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isWideAngle, setIsWideAngle] = useState(false);
+  const [currentFormat, setCurrentFormat] = useState(null);
   const cameraRef = useRef(null);
   const intervalRef = useRef(null);
-  const device = useCameraDevice('back');
   const {hasPermission, requestPermission} = useCameraPermission();
+  const devices = useCameraDevices();
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -37,22 +39,53 @@ const VisionTab = () => {
         setIsActive(true);
       }
     };
+
     checkPermissions();
   }, [hasPermission, requestPermission]);
 
   const format = useMemo(() => {
-    if (device) {
-      return device.formats
-        .filter(
-          f =>
-            f.videoStabilizationModes && f.videoStabilizationModes.length > 0,
-        )
-        .sort(
-          (a, b) => b.photoWidth * b.photoHeight - a.photoWidth * a.photoHeight,
-        )[0];
+    if (devices) {
+      const backDevices = devices.filter(device => device.position === 'back');
+      console.log(backDevices);
     }
     return null;
-  }, [device]);
+  }, [devices]);
+
+  const getWidestFormat = () => {
+    if (devices) {
+      console.debug(devices.formats);
+      return devices.formats.sort((a, b) => b.fieldOfView - a.fieldOfView)[0];
+    }
+    return null;
+  };
+
+  const selectCamerasForZoomLevels = devices => {
+    let wideAngleCamera = null;
+    let standardCamera = null;
+    let telephotoCamera = null;
+
+    // Sorting devices by minZoom to find the wide-angle and standard camera
+    devices.sort((a, b) => a.minZoom - b.minZoom);
+    wideAngleCamera = devices.find(device =>
+      device.physicalDevices.includes('ultra-wide-angle-camera'),
+    ); // Closest to 0.5x
+    standardCamera = devices.find(device => device.minZoom === 1);
+
+    // Sorting devices by maxZoom to find the telephoto camera
+    devices.sort((a, b) => b.maxZoom - a.maxZoom);
+    telephotoCamera = devices.find(device => device.maxZoom >= 3);
+
+    return {wideAngleCamera, standardCamera, telephotoCamera};
+  };
+
+  const selectedCameras = selectCamerasForZoomLevels(devices);
+  console.log(selectedCameras);
+
+  const toggleWideAngle = () => {
+    setIsWideAngle(prevState => !prevState);
+    const newFormat = isWideAngle ? format : getWidestFormat();
+    setCurrentFormat(newFormat);
+  };
 
   const startStreaming = useCallback(() => {
     if (isStreaming) {
@@ -64,15 +97,22 @@ const VisionTab = () => {
     if (isCameraReady) {
       intervalRef.current = setInterval(async () => {
         if (cameraRef.current) {
-          const photo = await cameraRef.current.takePhoto({
-            quality: 'high',
-            skipMetadata: true,
-          });
-          setCapturedFrame(photo.path);
+          const photos = await Promise.all([
+            cameraRef.current.takePhoto({quality: 'high', skipMetadata: true}),
+            cameraRef.current.takePhoto({quality: 'high', skipMetadata: true}),
+            cameraRef.current.takePhoto({quality: 'high', skipMetadata: true}),
+          ]);
+          const bestPhoto = selectBestPhoto(photos);
+          setCapturedFrame(bestPhoto.path);
         }
       }, 3000);
     }
   }, [isStreaming, isCameraReady]);
+
+  const selectBestPhoto = photos => {
+    // use blur detection to select the clearest photo
+    return photos[0]; // Placeholder: return the first photo for now
+  };
 
   useEffect(() => {
     return () => {
@@ -93,17 +133,17 @@ const VisionTab = () => {
   return (
     <View style={styles.container}>
       <View style={styles.halfHeight}>
-        {isActive && device ? (
+        {isActive && devices ? (
           <Camera
             ref={cameraRef}
             style={styles.camera}
-            device={device}
+            device={devices}
             isActive={isActive}
             photo={true}
             onInitialized={() => setIsCameraReady(true)}
             onError={handleCameraError}
             format={format}
-            videoStabilizationMode={format?.videoStabilizationModes[0]}
+            videoStabilizationMode={'auto'}
             photoHdr={true}
           />
         ) : (
@@ -122,10 +162,21 @@ const VisionTab = () => {
         )}
       </View>
       {isCameraReady && (
-        <TouchableOpacity
-          style={[styles.button, isStreaming && styles.buttonStreaming]}
-          onPress={startStreaming}
-        />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, isStreaming && styles.buttonStreaming]}
+            onPress={startStreaming}
+          />
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.wideAngleButton,
+              isWideAngle && styles.buttonWideAngleActive,
+            ]}
+            onPress={toggleWideAngle}>
+            <Text style={styles.buttonText}>.5</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -136,37 +187,45 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   halfHeight: {
-    width: '100%',
-    height: '50%',
+    flex: 0.5,
   },
   camera: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
   },
   placeholder: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ccc',
   },
   image: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10,
   },
   button: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: 'blue',
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 30,
-    alignSelf: 'center',
   },
   buttonStreaming: {
     backgroundColor: 'red',
   },
+  wideAngleButton: {
+    backgroundColor: 'green',
+  },
+  buttonWideAngleActive: {
+    backgroundColor: 'yellow',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });
+
 export default VisionTab;

@@ -81,6 +81,11 @@ const VisionTab = () => {
   const selectedCameras = selectCamerasForZoomLevels(devices);
   console.log(selectedCameras);
 
+  if (selectedCameras.wideAngleCamera) {
+    const formats = selectedCameras.wideAngleCamera.formats;
+    console.log(formats); // This will log all available formats for the wide-angle camera
+  }
+
   const toggleWideAngle = () => {
     setIsWideAngle(prevState => !prevState);
     const newFormat = isWideAngle ? format : getWidestFormat();

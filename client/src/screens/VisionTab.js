@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect, useCallback, useMemo} from 'react';
+import React, {useState, useRef, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {
   useCameraPermission,
-  useCameraDevices,
+  useCameraDevice,
   Camera,
   CameraRuntimeError,
 } from 'react-native-vision-camera';
@@ -20,11 +20,16 @@ const VisionTab = () => {
   const [capturedFrame, setCapturedFrame] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isWideAngle, setIsWideAngle] = useState(false);
-  const [currentFormat, setCurrentFormat] = useState(null);
   const cameraRef = useRef(null);
   const intervalRef = useRef(null);
   const {hasPermission, requestPermission} = useCameraPermission();
-  const devices = useCameraDevices();
+  const device = useCameraDevice('back', {
+    physicalDevices: [
+      'ultra-wide-angle-camera',
+      'wide-angle-camera',
+      'telephoto-camera',
+    ],
+  });
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -43,53 +48,8 @@ const VisionTab = () => {
     checkPermissions();
   }, [hasPermission, requestPermission]);
 
-  const format = useMemo(() => {
-    if (devices) {
-      const backDevices = devices.filter(device => device.position === 'back');
-      console.log(backDevices);
-    }
-    return null;
-  }, [devices]);
-
-  const getWidestFormat = () => {
-    if (devices) {
-      console.debug(devices.formats);
-      return devices.formats.sort((a, b) => b.fieldOfView - a.fieldOfView)[0];
-    }
-    return null;
-  };
-
-  const selectCamerasForZoomLevels = devices => {
-    let wideAngleCamera = null;
-    let standardCamera = null;
-    let telephotoCamera = null;
-
-    // Sorting devices by minZoom to find the wide-angle and standard camera
-    devices.sort((a, b) => a.minZoom - b.minZoom);
-    wideAngleCamera = devices.find(device =>
-      device.physicalDevices.includes('ultra-wide-angle-camera'),
-    ); // Closest to 0.5x
-    standardCamera = devices.find(device => device.minZoom === 1);
-
-    // Sorting devices by maxZoom to find the telephoto camera
-    devices.sort((a, b) => b.maxZoom - a.maxZoom);
-    telephotoCamera = devices.find(device => device.maxZoom >= 3);
-
-    return {wideAngleCamera, standardCamera, telephotoCamera};
-  };
-
-  const selectedCameras = selectCamerasForZoomLevels(devices);
-  console.log(selectedCameras);
-
-  if (selectedCameras.wideAngleCamera) {
-    const formats = selectedCameras.wideAngleCamera.formats;
-    console.log(formats); // This will log all available formats for the wide-angle camera
-  }
-
   const toggleWideAngle = () => {
     setIsWideAngle(prevState => !prevState);
-    const newFormat = isWideAngle ? format : getWidestFormat();
-    setCurrentFormat(newFormat);
   };
 
   const startStreaming = useCallback(() => {
@@ -138,16 +98,16 @@ const VisionTab = () => {
   return (
     <View style={styles.container}>
       <View style={styles.halfHeight}>
-        {isActive && devices ? (
+        {isActive && device ? (
           <Camera
             ref={cameraRef}
             style={styles.camera}
-            device={devices}
+            device={device}
             isActive={isActive}
             photo={true}
             onInitialized={() => setIsCameraReady(true)}
             onError={handleCameraError}
-            format={format}
+            zoom={isWideAngle ? device.minZoom : device.neutralZoom}
             videoStabilizationMode={'auto'}
             photoHdr={true}
           />

@@ -10,6 +10,7 @@ import {
 import {
   useCameraPermission,
   useCameraDevice,
+  useCameraDevices,
   Camera,
   CameraRuntimeError,
 } from 'react-native-vision-camera';
@@ -24,6 +25,7 @@ const VisionTab = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isWideAngle, setIsWideAngle] = useState(true);
   const [isFrontCamera, setIsFrontCamera] = useState(false);
+  const [currentCamera, setCurrentCamera] = useState(null);
   const cameraRef = useRef(null);
   const intervalRef = useRef(null);
   const {hasPermission, requestPermission} = useCameraPermission();
@@ -39,6 +41,10 @@ const VisionTab = () => {
   const frontCamera = useCameraDevice('front', {
     physicalDevices: ['wide-angle-camera'],
   });
+
+  useEffect(() => {
+    setCurrentCamera(isFrontCamera ? frontCamera : backCamera); // Update the current camera device whenever isFrontCamera changes
+  }, [isFrontCamera, frontCamera, backCamera]);
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -111,24 +117,18 @@ const VisionTab = () => {
   return (
     <View style={styles.container}>
       <View style={styles.halfHeight}>
-        {isActive && (isFrontCamera ? frontCamera : backCamera) ? (
+        {isActive && currentCamera ? (
           <>
             <Camera
               ref={cameraRef}
               style={styles.camera}
-              device={isFrontCamera ? frontCamera : backCamera}
+              device={currentCamera}
               isActive={isActive}
               photo={true}
               onInitialized={() => setIsCameraReady(true)}
               onError={handleCameraError}
               zoom={
-                isWideAngle
-                  ? isFrontCamera
-                    ? frontCamera.minZoom
-                    : backCamera.minZoom
-                  : isFrontCamera
-                  ? frontCamera.neutralZoom
-                  : backCamera.neutralZoom
+                isWideAngle ? currentCamera.minZoom : currentCamera.neutralZoom
               }
               videoStabilizationMode={'auto'}
               photoHdr={true}

@@ -52,7 +52,6 @@ export const useChatManager = () => {
     try {
       const cachedChats = await retrieveItem('chatArray');
       if (cachedChats) {
-        console.log('Loading chats from cache');
         setChatArray(cachedChats);
 
         const cachedMessages = cachedChats.reduce((acc, chat) => {

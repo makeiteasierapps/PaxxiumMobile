@@ -32,7 +32,6 @@ const MomentListItem = ({momentId, onItemPress}) => {
   );
 
   const formatDate = date => {
-    console.log('date:', date);
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',

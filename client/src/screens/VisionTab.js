@@ -1,74 +1,20 @@
 import React, {useState, useRef, useEffect, useCallback} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
-import {
-  useCameraPermission,
-  useCameraDevice,
-  useCameraDevices,
-  Camera,
-  CameraRuntimeError,
-} from 'react-native-vision-camera';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 
+import CameraComponent from '../components/camera/Camera';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faCameraRotate} from '@fortawesome/free-solid-svg-icons';
+import {faCameraRotate, faCamera} from '@fortawesome/free-solid-svg-icons';
 
 const VisionTab = () => {
-  const [isActive, setIsActive] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [capturedFrame, setCapturedFrame] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isWideAngle, setIsWideAngle] = useState(true);
-  const [isFrontCamera, setIsFrontCamera] = useState(false);
-  const [currentCamera, setCurrentCamera] = useState(null);
   const cameraRef = useRef(null);
   const intervalRef = useRef(null);
-  const {hasPermission, requestPermission} = useCameraPermission();
-
-  const backCamera = useCameraDevice('back', {
-    physicalDevices: [
-      'ultra-wide-angle-camera',
-      'wide-angle-camera',
-      'telephoto-camera',
-    ],
-  });
-
-  const frontCamera = useCameraDevice('front', {
-    physicalDevices: ['wide-angle-camera'],
-  });
-
-  useEffect(() => {
-    setCurrentCamera(isFrontCamera ? frontCamera : backCamera); // Update the current camera device whenever isFrontCamera changes
-  }, [isFrontCamera, frontCamera, backCamera]);
-
-  useEffect(() => {
-    const checkPermissions = async () => {
-      if (!hasPermission) {
-        const status = await requestPermission();
-        if (status !== 'granted') {
-          Alert.alert('Camera permission is required');
-        } else {
-          setIsActive(true);
-        }
-      } else {
-        setIsActive(true);
-      }
-    };
-
-    checkPermissions();
-  }, [hasPermission, requestPermission]);
 
   const toggleWideAngle = () => {
     setIsWideAngle(prevState => !prevState);
-  };
-
-  const toggleCamera = () => {
-    setIsFrontCamera(prevState => !prevState);
   };
 
   const startStreaming = useCallback(() => {
@@ -106,42 +52,16 @@ const VisionTab = () => {
     };
   }, []);
 
-  const handleCameraError = useCallback(error => {
-    if (error instanceof CameraRuntimeError) {
-      Alert.alert('Camera Error', error.message);
-    } else {
-      console.error('Camera error', error);
-    }
-  }, []);
-
   return (
     <View style={styles.container}>
       <View style={styles.halfHeight}>
-        {isActive && currentCamera ? (
-          <>
-            <Camera
-              ref={cameraRef}
-              style={styles.camera}
-              device={currentCamera}
-              isActive={isActive}
-              photo={true}
-              onInitialized={() => setIsCameraReady(true)}
-              onError={handleCameraError}
-              zoom={
-                isWideAngle ? currentCamera.minZoom : currentCamera.neutralZoom
-              }
-              videoStabilizationMode={'auto'}
-              photoHdr={true}
-            />
-            <TouchableOpacity style={styles.iconButton} onPress={toggleCamera}>
-              <FontAwesomeIcon icon={faCameraRotate} size={34} color="white" />
-            </TouchableOpacity>
-          </>
-        ) : (
-          <View style={styles.placeholder}>
-            <Text>Camera is not active</Text>
-          </View>
-        )}
+        <CameraComponent
+          {...{
+            cameraRef,
+            isWideAngle,
+            setIsCameraReady,
+          }}
+        />
       </View>
       <View style={styles.halfHeight}>
         {capturedFrame ? (

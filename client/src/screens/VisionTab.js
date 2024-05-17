@@ -14,21 +14,30 @@ import {
   CameraRuntimeError,
 } from 'react-native-vision-camera';
 
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {faCameraRotate} from '@fortawesome/free-solid-svg-icons';
+
 const VisionTab = () => {
   const [isActive, setIsActive] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [capturedFrame, setCapturedFrame] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isWideAngle, setIsWideAngle] = useState(true);
+  const [isFrontCamera, setIsFrontCamera] = useState(false);
   const cameraRef = useRef(null);
   const intervalRef = useRef(null);
   const {hasPermission, requestPermission} = useCameraPermission();
-  const device = useCameraDevice('back', {
+
+  const backCamera = useCameraDevice('back', {
     physicalDevices: [
       'ultra-wide-angle-camera',
       'wide-angle-camera',
       'telephoto-camera',
     ],
+  });
+
+  const frontCamera = useCameraDevice('front', {
+    physicalDevices: ['wide-angle-camera'],
   });
 
   useEffect(() => {
@@ -50,6 +59,10 @@ const VisionTab = () => {
 
   const toggleWideAngle = () => {
     setIsWideAngle(prevState => !prevState);
+  };
+
+  const toggleCamera = () => {
+    setIsFrontCamera(prevState => !prevState);
   };
 
   const startStreaming = useCallback(() => {
@@ -98,19 +111,32 @@ const VisionTab = () => {
   return (
     <View style={styles.container}>
       <View style={styles.halfHeight}>
-        {isActive && device ? (
-          <Camera
-            ref={cameraRef}
-            style={styles.camera}
-            device={device}
-            isActive={isActive}
-            photo={true}
-            onInitialized={() => setIsCameraReady(true)}
-            onError={handleCameraError}
-            zoom={isWideAngle ? device.minZoom : device.neutralZoom}
-            videoStabilizationMode={'auto'}
-            photoHdr={true}
-          />
+        {isActive && (isFrontCamera ? frontCamera : backCamera) ? (
+          <>
+            <Camera
+              ref={cameraRef}
+              style={styles.camera}
+              device={isFrontCamera ? frontCamera : backCamera}
+              isActive={isActive}
+              photo={true}
+              onInitialized={() => setIsCameraReady(true)}
+              onError={handleCameraError}
+              zoom={
+                isWideAngle
+                  ? isFrontCamera
+                    ? frontCamera.minZoom
+                    : backCamera.minZoom
+                  : isFrontCamera
+                  ? frontCamera.neutralZoom
+                  : backCamera.neutralZoom
+              }
+              videoStabilizationMode={'auto'}
+              photoHdr={true}
+            />
+            <TouchableOpacity style={styles.iconButton} onPress={toggleCamera}>
+              <FontAwesomeIcon icon={faCameraRotate} size={34} color="white" />
+            </TouchableOpacity>
+          </>
         ) : (
           <View style={styles.placeholder}>
             <Text>Camera is not active</Text>
@@ -168,6 +194,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    padding: 10,
+  },
+  iconButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
     padding: 10,
   },
   button: {

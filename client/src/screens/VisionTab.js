@@ -19,7 +19,7 @@ const VisionTab = () => {
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [capturedFrame, setCapturedFrame] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isWideAngle, setIsWideAngle] = useState(false);
+  const [isWideAngle, setIsWideAngle] = useState(true);
   const cameraRef = useRef(null);
   const intervalRef = useRef(null);
   const {hasPermission, requestPermission} = useCameraPermission();
@@ -182,10 +182,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
   },
   wideAngleButton: {
-    backgroundColor: 'green',
+    backgroundColor: 'blue',
   },
   buttonWideAngleActive: {
-    backgroundColor: 'yellow',
+    backgroundColor: 'green',
   },
   buttonText: {
     color: 'white',

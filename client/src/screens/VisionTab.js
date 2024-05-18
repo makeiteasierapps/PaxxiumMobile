@@ -1,21 +1,24 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
-import {useIsFocused} from '@react-navigation/native';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {faEye} from '@fortawesome/free-solid-svg-icons';
 
 import CameraComponent from '../components/camera/Camera';
 
 const VisionTab = () => {
   const [capturedFrame, setCapturedFrame] = useState(null);
-  const isFocused = useIsFocused();
-  console.log('isFocused', isFocused);
+  const [isCameraVisible, setIsCameraVisible] = useState(false);
+
+  const toggleCameraVisibility = () => {
+    setIsCameraVisible(!isCameraVisible);
+  };
+
   return (
     <View style={styles.container}>
-      {isFocused && (
-        <CameraComponent
-          setCapturedFrame={setCapturedFrame}
-          isFocused={isFocused}
-        />
-      )}
+      <TouchableOpacity style={styles.icon} onPress={toggleCameraVisibility}>
+        <FontAwesomeIcon icon={faEye} size={24} />
+      </TouchableOpacity>
+      {isCameraVisible && <CameraComponent setCapturedFrame={setCapturedFrame} />}
     </View>
   );
 };
@@ -23,6 +26,12 @@ const VisionTab = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  icon: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 1,
   },
 });
 

@@ -4,6 +4,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faEye} from '@fortawesome/free-solid-svg-icons';
 
 import CameraComponent from '../components/camera/Camera';
+import AudioCircle from '../components/sam/AudioCircle';
 
 const VisionTab = () => {
   const [capturedFrame, setCapturedFrame] = useState(null);
@@ -19,6 +20,7 @@ const VisionTab = () => {
         <FontAwesomeIcon icon={faEye} size={24} />
       </TouchableOpacity>
       {isCameraVisible && <CameraComponent setCapturedFrame={setCapturedFrame} />}
+      <AudioCircle />
     </View>
   );
 };
@@ -26,6 +28,8 @@ const VisionTab = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   icon: {
     position: 'absolute',

@@ -1,14 +1,10 @@
 #!/bin/bash
 
-MOMENT_SERVICE_FILE="../../services/MomentService.py"
-
-cp "$MOMENT_SERVICE_FILE" .
-
-gcloud functions deploy moments \
+gcloud functions deploy sam \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=moments \
+  --entry-point=sam \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \

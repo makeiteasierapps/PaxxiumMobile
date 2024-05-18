@@ -141,6 +141,30 @@ class BossAgent:
                 }
                 yield stream_obj
 
+    def get_full_response(self, message_obj):
+        new_user_message = message_obj['user_message']
+
+        response = self.openai_client.chat.completions.create(
+            model=self.model,
+            messages=[{
+                "role": "user",
+                "content": new_user_message,
+            }],
+        )
+        return response.choices[0].message.content
+    
+    def stream_audio_response(self, message):
+        response = self.openai_client.audio.speech.create(
+            model="tts-1",
+            voice="nova",
+            input=message,
+        )
+
+        print(response)
+        response.stream_to_file('audio.mp3')
+        for chunk in response:
+            yield chunk
+ 
     def manage_chat(self, chat_history, new_user_message, system_message):
         """
         Takes a chat object extracts x amount of tokens and returns a message

@@ -1,4 +1,5 @@
-import {useContext, useRef, useEffect} from 'react';
+import {useContext, useRef, useEffect, useState} from 'react';
+import jsTokens from 'js-tokens';
 import {useNavigation} from '@react-navigation/native';
 import {ScrollView, Text, StyleSheet, FlatList} from 'react-native';
 import {Button} from 'react-native-elements';
@@ -9,10 +10,38 @@ import MomentListItem from '../components/moments/MomentsListItem';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 const MomentsTab = () => {
-  const {moments} = useContext(MomentsContext);
+  const [displayTranscript, setDisplayTranscript] = useState('');
+  const {moments, createOrUpdateMoment} = useContext(MomentsContext);
+  const tokenCount = useRef(0);
   
-  const {isRecording, displayTranscript, stopRecording, startRecording} =
-    useAudioStream();
+  const countTokens = text => {
+    const token_count = Array.from(jsTokens(text)).length;
+    return token_count;
+  };
+
+  const handleSilenceDetected = () => {
+    console.log('Silence detected in MomentsTab');
+  };
+
+  const handleWordDetected = transcribedWord => {
+    const tokens = countTokens(transcribedWord);
+    tokenCount.current += tokens;
+    streamingTranscript.current += ' ' + transcribedWord;
+    setTranscript(prev => prev + ' ' + transcribedWord);
+
+    if (tokenCount.current >= 500) {
+      console.log('Token count reached', tokenCount.current);
+      createOrUpdateMoment(streamingTranscript.current);
+      streamingTranscript.current = '';
+      tokenCount.current = 0;
+    }
+  };
+
+  const {isRecording, stopRecording, startRecording} = useAudioStream(
+    handleWordDetected,
+    handleSilenceDetected,
+    setDisplayTranscript,
+  );
 
   const scrollViewRef = useRef(null);
   const navigation = useNavigation();
@@ -46,7 +75,10 @@ const MomentsTab = () => {
           renderItem={({item}) => {
             console.log('Passing momentId:', item.momentId);
             return (
-              <MomentListItem momentId={item.momentId} onItemPress={handlePress} />
+              <MomentListItem
+                momentId={item.momentId}
+                onItemPress={handlePress}
+              />
             );
           }}
           style={{flex: 1}}

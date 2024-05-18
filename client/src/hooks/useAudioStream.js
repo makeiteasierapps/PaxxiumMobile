@@ -11,7 +11,7 @@ const useAudioStream = (
   updateTranscriptState,
 ) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [lastWasSilence, setLastWasSilence] = useState(true);
+  const silenceRef = useRef(null);
   const streamingTranscript = useRef('');
   const ws = useRef(null);
   const {bleManagerEmitter} = useContext(BluetoothContext);
@@ -73,14 +73,14 @@ const useAudioStream = (
   };
 
   const handleSilenceDetected = () => {
-    if (!lastWasSilence) {
-      setLastWasSilence(true);
+    if (!silenceRef.current) {
+      silenceRef.current = true;
       onSilenceDetected && onSilenceDetected();
     }
   };
 
   const handleWordDetected = transcribedWord => {
-    setLastWasSilence(false);
+    silenceRef.current = false;
     streamingTranscript.current += ' ' + transcribedWord;
     updateTranscriptState(prev => prev + ' ' + transcribedWord);
     onWordDetected && onWordDetected(transcribedWord);

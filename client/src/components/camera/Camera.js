@@ -1,5 +1,13 @@
 import {useState, useEffect, useRef} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import {useIsFocused} from '@react-navigation/core';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  AppState,
+} from 'react-native';
 import {
   useCameraPermission,
   useCameraDevice,
@@ -10,8 +18,21 @@ import {
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faCameraRotate, faCamera} from '@fortawesome/free-solid-svg-icons';
 
-const CameraComponent = ({setCapturedFrame}) => {
-  const [isActive, setIsActive] = useState(false);
+const useIsForeground = () => {
+  const [isForeground, setIsForeground] = useState(true);
+
+  useEffect(() => {
+    const onChange = state => {
+      setIsForeground(state === 'active');
+    };
+    const listener = AppState.addEventListener('change', onChange);
+    return () => listener.remove();
+  }, [setIsForeground]);
+
+  return isForeground;
+};
+
+const CameraComponent = ({setCapturedFrame, isFocused}) => {
   const [isFrontCamera, setIsFrontCamera] = useState(false);
   const [currentCamera, setCurrentCamera] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -20,6 +41,9 @@ const CameraComponent = ({setCapturedFrame}) => {
   const cameraRef = useRef(null);
   const intervalRef = useRef(null);
   const {hasPermission, requestPermission} = useCameraPermission();
+
+  const isForeground = useIsForeground();
+  const isActive = isFocused && isForeground;
 
   const backCamera = useCameraDevice('back', {
     physicalDevices: [
@@ -32,6 +56,10 @@ const CameraComponent = ({setCapturedFrame}) => {
   const frontCamera = useCameraDevice('front', {
     physicalDevices: ['wide-angle-camera'],
   });
+
+  useEffect(() => {
+    setCurrentCamera(isFrontCamera ? frontCamera : backCamera);
+  }, [isFrontCamera, frontCamera, backCamera]);
 
   useEffect(() => {
     return () => {
@@ -47,29 +75,12 @@ const CameraComponent = ({setCapturedFrame}) => {
         const status = await requestPermission();
         if (status !== 'granted') {
           Alert.alert('Camera permission is required');
-        } else {
-          setIsActive(true);
         }
-      } else {
-        setIsActive(true);
       }
     };
 
     checkPermissions();
   }, [hasPermission, requestPermission]);
-
-  useEffect(() => {
-    setCurrentCamera(isFrontCamera ? frontCamera : backCamera);
-  }, [isFrontCamera, frontCamera, backCamera]);
-
-  if (!isActive || !currentCamera) {
-    console.log(isActive, currentCamera);
-    return (
-      <View style={styles.placeholder}>
-        <Text>Camera is not active</Text>
-      </View>
-    );
-  }
 
   const toggleFrontCamera = () => {
     setIsFrontCamera(prevState => !prevState);
@@ -114,37 +125,45 @@ const CameraComponent = ({setCapturedFrame}) => {
   };
   return (
     <>
-      <Camera
-        ref={cameraRef}
-        style={styles.camera}
-        device={currentCamera}
-        isActive={isActive}
-        photo={true}
-        onInitialized={() => setIsCameraReady(true)}
-        onError={handleCameraError}
-        zoom={isWideAngle ? currentCamera.minZoom : currentCamera.neutralZoom}
-        videoStabilizationMode={'auto'}
-        photoHdr={true}
-      />
-      <TouchableOpacity style={styles.iconButton} onPress={toggleFrontCamera}>
-        <FontAwesomeIcon icon={faCameraRotate} size={34} color="white" />
-      </TouchableOpacity>
+      {currentCamera && (
+        <>
+          <Camera
+            ref={cameraRef}
+            style={styles.camera}
+            device={currentCamera}
+            isActive={isActive}
+            photo={true}
+            onInitialized={() => setIsCameraReady(true)}
+            onError={handleCameraError}
+            zoom={
+              isWideAngle ? currentCamera.minZoom : currentCamera.neutralZoom
+            }
+            videoStabilizationMode={'auto'}
+            photoHdr={true}
+          />
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={toggleFrontCamera}>
+            <FontAwesomeIcon icon={faCameraRotate} size={34} color="white" />
+          </TouchableOpacity>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, isStreaming && styles.buttonStreaming]}
-          onPress={startStreaming}
-        />
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.wideAngleButton,
-            isWideAngle && styles.buttonWideAngleActive,
-          ]}
-          onPress={toggleWideAngle}>
-          <Text style={styles.buttonText}>.5</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, isStreaming && styles.buttonStreaming]}
+              onPress={startStreaming}
+            />
+            <TouchableOpacity
+              style={[
+                styles.button,
+                styles.wideAngleButton,
+                isWideAngle && styles.buttonWideAngleActive,
+              ]}
+              onPress={toggleWideAngle}>
+              <Text style={styles.buttonText}>.5</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </>
   );
 };
@@ -162,19 +181,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     position: 'absolute',
     flexDirection: 'row',
+    width: '100%',
     justifyContent: 'space-around',
-    padding: 10,
-  },
-  captureButton: {
-    position: 'absolute',
     bottom: 20,
-    right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    padding: 10,
   },
   button: {
     width: 50,

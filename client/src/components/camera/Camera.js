@@ -32,7 +32,7 @@ const useIsForeground = () => {
   return isForeground;
 };
 
-const CameraComponent = ({setCapturedFrame, isFocused}) => {
+const CameraComponent = ({setCapturedFrame}) => {
   const [isFrontCamera, setIsFrontCamera] = useState(false);
   const [currentCamera, setCurrentCamera] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -41,7 +41,7 @@ const CameraComponent = ({setCapturedFrame, isFocused}) => {
   const cameraRef = useRef(null);
   const intervalRef = useRef(null);
   const {hasPermission, requestPermission} = useCameraPermission();
-
+  const isFocused = useIsFocused();
   const isForeground = useIsForeground();
   const isActive = isFocused && isForeground;
 

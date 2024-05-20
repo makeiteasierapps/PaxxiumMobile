@@ -1,4 +1,5 @@
 import os
+from flask import Response
 from dotenv import load_dotenv
 
 headers = {"Access-Control-Allow-Origin": "*"}
@@ -20,18 +21,17 @@ def cors_preflight_response():
     return ("", 204, cors_headers)
 
 def handle_new_message(request):
-    data = request.json()
+    data = request.json
     new_message = data['newMessage']
     boss_agent = BossAgent()
     get_text_response = boss_agent.get_full_response(new_message)
     response_generator = boss_agent.stream_audio_response(get_text_response)
-    for chunk in response_generator:
-        yield chunk
+    return Response(response_generator, mimetype='audio/mpeg')
 
 def sam(request):
     if request.method == 'OPTIONS':
         return cors_preflight_response()
     
     if request.method == 'POST':
-        handle_new_message(request)
+        return handle_new_message(request)
 

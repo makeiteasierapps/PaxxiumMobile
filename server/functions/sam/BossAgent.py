@@ -141,16 +141,15 @@ class BossAgent:
                 }
                 yield stream_obj
 
-    def get_full_response(self, message_obj):
-        new_user_message = message_obj['user_message']
-
+    def get_full_response(self, message):
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[{
                 "role": "user",
-                "content": new_user_message,
+                "content": message,
             }],
         )
+        print('Sam', response.choices[0].message.content)
         return response.choices[0].message.content
     
     def stream_audio_response(self, message):
@@ -160,9 +159,9 @@ class BossAgent:
             input=message,
         )
 
-        print(response)
-        response.stream_to_file('audio.mp3')
-        return response
+        for chunk in response.iter_bytes(chunk_size=4096):
+            if chunk:
+                yield chunk
  
     def manage_chat(self, chat_history, new_user_message, system_message):
         """

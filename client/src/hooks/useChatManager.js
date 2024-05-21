@@ -81,7 +81,6 @@ export const useChatManager = () => {
   const fetchChatsFromDB = async () => {
     const response = await axios.get(`${chatUrl}/chat`, {
       headers: {
-        'Content-Type': 'application/json',
         userId: userId,
       },
     });
@@ -130,13 +129,8 @@ export const useChatManager = () => {
   };
 
   const sendUserMessage = async dataPacket => {
-    const response = await fetch(`${chatUrl}/chat/messages`, {
-      reactNative: {textStreaming: true},
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(dataPacket),
+    const response = await axios.post(`${chatUrl}/chat/messages`, {
+      data: dataPacket,
     });
 
     if (!response.ok) {
@@ -222,12 +216,8 @@ export const useChatManager = () => {
 
   const clearChat = async chatId => {
     try {
-      const response = await fetch(`${chatUrl}/chat/messages`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({chatId}),
+      const response = await axios.delete(`${chatUrl}/chat/messages`, {
+        data: {chatId},
       });
 
       if (!response.ok) throw new Error('Failed to clear messages');
@@ -261,9 +251,6 @@ export const useChatManager = () => {
   const deleteChat = async chatId => {
     try {
       const response = await axios.delete(`${chatUrl}/chat`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
         data: {chatId},
       });
 

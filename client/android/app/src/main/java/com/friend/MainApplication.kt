@@ -1,4 +1,4 @@
-package com.friend
+package com.paxxium
 
 import android.app.Application
 import com.facebook.react.PackageList

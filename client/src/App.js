@@ -53,7 +53,9 @@ export default () => (
     <AuthProvider>
       <ChatProvider>
         <BluetoothProvider>
-          <App />
+          <MomentsProvider>
+            <App />
+          </MomentsProvider>
         </BluetoothProvider>
         <MySnackBar />
       </ChatProvider>

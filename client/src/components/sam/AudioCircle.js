@@ -1,21 +1,16 @@
 import React, {useState, useRef} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import useAudioStream from '../../hooks/useAudioStream';
-import AudioChunkPlayer from '../../utils/AudioChunkPlayer';
+import playChunk from '../../utils/AudioChunkPlayer';
 
 import {BACKEND_URL} from '@env';
 
 const AudioCircle = () => {
   const [circleSize, setCircleSize] = useState(200);
   const [displayText, setDisplayText] = useState('');
-  const silenceTimerRef = useRef(null);
 
   const handleWordDetected = word => {
     console.log('Word detected:', word);
-    if (silenceTimerRef.current) {
-      clearTimeout(silenceTimerRef.current);
-      silenceTimerRef.current = null;
-    }
   };
 
   let accumulatedChunks = [];
@@ -52,8 +47,7 @@ const AudioCircle = () => {
             // Adjust the threshold as needed
             const combinedChunks = new Uint8Array(accumulatedChunks);
             const base64String = btoa(String.fromCharCode(...combinedChunks));
-            console.log('Playing chunk:', base64String);
-            AudioChunkPlayer.playChunk(base64String);
+            playChunk(base64String);
             accumulatedChunks = []; // Reset the accumulator
           }
 

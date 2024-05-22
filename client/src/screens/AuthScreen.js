@@ -5,8 +5,6 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AuthContext} from '../contexts/AuthContext';
 import LoadingComponent from '../components/LoadingComponent';
 
-
-
 const Stack = createNativeStackNavigator();
 
 const LoginTab = ({navigation}) => {

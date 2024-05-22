@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Paxxium uses Bluetooth to connect to the device</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Paxxium uses the camera to scan QR codes</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Paxxium uses the microphone to record audio</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>

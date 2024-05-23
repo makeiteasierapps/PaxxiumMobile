@@ -1,0 +1,20 @@
+current directory: /Users/shaunoffenbacher/Desktop/Projects/PaxxiumMobile/client/vendor/bundle/ruby/3.3.0/gems/strscan-3.1.0/ext/strscan
+/Users/shaunoffenbacher/.rbenv/versions/3.3.0/bin/ruby extconf.rb
+checking for onig_region_memsize() in ruby.h... yes
+checking for rb_reg_onig_match() in ruby.h... yes
+creating Makefile
+
+current directory: /Users/shaunoffenbacher/Desktop/Projects/PaxxiumMobile/client/vendor/bundle/ruby/3.3.0/gems/strscan-3.1.0/ext/strscan
+make DESTDIR\= sitearchdir\=./.gem.20240522-40921-hidgav sitelibdir\=./.gem.20240522-40921-hidgav clean
+
+current directory: /Users/shaunoffenbacher/Desktop/Projects/PaxxiumMobile/client/vendor/bundle/ruby/3.3.0/gems/strscan-3.1.0/ext/strscan
+make DESTDIR\= sitearchdir\=./.gem.20240522-40921-hidgav sitelibdir\=./.gem.20240522-40921-hidgav
+compiling strscan.c
+linking shared-object strscan.bundle
+
+current directory: /Users/shaunoffenbacher/Desktop/Projects/PaxxiumMobile/client/vendor/bundle/ruby/3.3.0/gems/strscan-3.1.0/ext/strscan
+make DESTDIR\= sitearchdir\=./.gem.20240522-40921-hidgav sitelibdir\=./.gem.20240522-40921-hidgav install
+/usr/bin/install -c -m 0755 strscan.bundle ./.gem.20240522-40921-hidgav
+
+current directory: /Users/shaunoffenbacher/Desktop/Projects/PaxxiumMobile/client/vendor/bundle/ruby/3.3.0/gems/strscan-3.1.0/ext/strscan
+make DESTDIR\= sitearchdir\=./.gem.20240522-40921-hidgav sitelibdir\=./.gem.20240522-40921-hidgav clean

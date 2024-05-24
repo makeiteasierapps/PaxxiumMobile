@@ -1,5 +1,6 @@
 import React, {useContext, useState, useEffect} from 'react';
 import {
+  Button,
   SafeAreaView,
   StyleSheet,
   View,
@@ -7,6 +8,7 @@ import {
   FlatList,
   TouchableHighlight,
   Pressable,
+  NativeModules,
 } from 'react-native';
 import {BluetoothContext} from '../contexts/BluetoothContext';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -15,6 +17,15 @@ const SettingsTab = () => {
   const {isScanning, peripherals, startScan, togglePeripheralConnection} =
     useContext(BluetoothContext);
 
+  const {CalendarModule} = NativeModules;
+  const handleNativeModuleTest = () => {
+    console.log(CalendarModule);
+    if (!CalendarModule) {
+      console.log('CalendarModule not found');
+      return;
+    }
+    CalendarModule.createCalendarEvent('testName', 'testLocation');
+  };
   const renderItem = ({item}) => {
     const backgroundColor = item.connected ? '#069400' : Colors.white;
     return (
@@ -64,6 +75,11 @@ const SettingsTab = () => {
           renderItem={renderItem}
           keyExtractor={item => item.id}
         />
+        <Pressable style={styles.scanButton} onPress={handleNativeModuleTest}>
+          <Text style={styles.scanButtonText}>
+            Click to invoke your native module!
+          </Text>
+        </Pressable>
       </SafeAreaView>
     </>
   );

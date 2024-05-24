@@ -1,9 +1,9 @@
-import {NativeModules} from 'react-native';
-const {AudioChunkPlayer} = NativeModules;
+import { NativeModules } from 'react-native';
 
 const playChunk = base64Data => {
+  const {CalendarModule} = NativeModules;
   console.log('Playing chunk:', base64Data);
-  if (AudioChunkPlayer) {
+  if (CalendarModule) {
     console.log('AudioChunkPlayer module is available');
     // AudioChunkPlayer.playChunk(base64Data);
   } else {

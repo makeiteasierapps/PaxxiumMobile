@@ -73,7 +73,7 @@ const useAudioStream = (
   };
 
   const handleSilenceDetected = () => {
-    onSilenceDetected && onSilenceDetected();
+    onSilenceDetected && onSilenceDetected(streamingTranscript.current);
   };
 
   const handleWordDetected = transcribedWord => {

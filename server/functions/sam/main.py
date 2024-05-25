@@ -1,5 +1,5 @@
 import os
-from flask import Response
+from flask import Response, send_file
 from dotenv import load_dotenv
 
 headers = {"Access-Control-Allow-Origin": "*"}
@@ -25,8 +25,8 @@ def handle_new_message(request):
     new_message = data['newMessage']
     boss_agent = BossAgent()
     get_text_response = boss_agent.get_full_response(new_message)
-    response_generator = boss_agent.stream_audio_response(get_text_response)
-    return Response(response_generator, mimetype='audio/mpeg')
+    boss_agent.stream_audio_response(get_text_response)
+    return send_file('audio.mp3', mimetype='audio/mpeg')
 
 def sam(request):
     if request.method == 'OPTIONS':

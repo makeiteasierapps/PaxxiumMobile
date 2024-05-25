@@ -17,7 +17,9 @@ const AudioCircle = () => {
     wordDetected.current = true;
   };
 
-  const handleSilenceDetected = async (message) => {
+  Sound.setCategory('Playback');
+
+  const handleSilenceDetected = async message => {
     console.log(wordDetected.current);
     if (wordDetected.current) {
       console.log('Silence detected sending message:', message);
@@ -48,6 +50,7 @@ const AudioCircle = () => {
                 console.error('Failed to load the sound', error);
                 return;
               }
+              sound.setVolume(1);
               sound.play(success => {
                 if (!success) {
                   console.error('Sound playback failed');

@@ -153,15 +153,24 @@ class BossAgent:
         return response.choices[0].message.content
     
     def stream_audio_response(self, message):
+        print(message)
+        file_path = 'audio.mp3'
+        
+        # Delete the existing file if it exists
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
         response = self.openai_client.audio.speech.create(
             model="tts-1",
             voice="nova",
             input=message,
         )
 
-        for chunk in response.iter_bytes(chunk_size=4096):
-            if chunk:
-                yield chunk
+        response.stream_to_file(file_path)
+        
+        # for chunk in response.iter_bytes(chunk_size=4096):
+        #     if chunk:
+        #         yield chunk
  
     def manage_chat(self, chat_history, new_user_message, system_message):
         """

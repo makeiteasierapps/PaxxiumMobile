@@ -14,6 +14,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		5BF0CD1F2C010F2300409A11 /* RCTCalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD1E2C010F2300409A11 /* RCTCalendarModule.m */; };
 		5BF0CD202C010F2300409A11 /* RCTCalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD1E2C010F2300409A11 /* RCTCalendarModule.m */; };
+		5BF0CD232C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */; };
+		5BF0CD242C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */; };
+		5BF0CD262C01438F00409A11 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF0CD252C01438F00409A11 /* AVFoundation.framework */; };
 		7699B88040F8A987B510C191 /* libPods-Friend-FriendTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-Friend-FriendTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -46,6 +49,9 @@
 		5BF0CD192C010EEC00409A11 /* FriendTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FriendTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		5BF0CD1D2C010F2300409A11 /* RCTCalendarModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTCalendarModule.h; sourceTree = "<group>"; };
 		5BF0CD1E2C010F2300409A11 /* RCTCalendarModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTCalendarModule.m; sourceTree = "<group>"; };
+		5BF0CD212C01421100409A11 /* RCTAudioStreamPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTAudioStreamPlayer.h; sourceTree = "<group>"; };
+		5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTAudioStreamPlayer.m; sourceTree = "<group>"; };
+		5BF0CD252C01438F00409A11 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-Friend.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Friend.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Friend/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-Friend-FriendTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Friend-FriendTests.release.xcconfig"; path = "Target Support Files/Pods-Friend-FriendTests/Pods-Friend-FriendTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -65,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5BF0CD262C01438F00409A11 /* AVFoundation.framework in Frameworks */,
 				0C80B921A6F3F58F76C31292 /* libPods-Friend.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -105,6 +112,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5BF0CD252C01438F00409A11 /* AVFoundation.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-Friend.a */,
 				19F6CBCC0A4E27FBF8BF4A61 /* libPods-Friend-FriendTests.a */,
@@ -122,6 +130,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				5BF0CD212C01421100409A11 /* RCTAudioStreamPlayer.h */,
+				5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */,
 				5BF0CD1D2C010F2300409A11 /* RCTCalendarModule.h */,
 				5BF0CD1E2C010F2300409A11 /* RCTCalendarModule.m */,
 				13B07FAE1A68108700A75B9A /* Friend */,
@@ -396,6 +406,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E356F31AD99517003FC87E /* FriendTests.m in Sources */,
+				5BF0CD242C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */,
 				5BF0CD202C010F2300409A11 /* RCTCalendarModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -405,6 +416,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5BF0CD1F2C010F2300409A11 /* RCTCalendarModule.m in Sources */,
+				5BF0CD232C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);

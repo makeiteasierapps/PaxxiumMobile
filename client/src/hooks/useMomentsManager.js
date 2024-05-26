@@ -1,6 +1,6 @@
 import {useState, useContext, useEffect} from 'react';
 import axios from 'axios';
-import {BACKEND_URL} from '@env';
+import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
 import {SnackbarContext} from '../contexts/SnackbarContext';
 import {useSecureStorage} from './useSecureStorage';
 
@@ -11,6 +11,11 @@ export const useMomentsManager = () => {
   const {storeItem, retrieveItem, deleteMoments} = useSecureStorage();
   const {showSnackbar} = useContext(SnackbarContext);
 
+  const momentUrl =
+    process.env.LOCAL_DEV === 'True'
+      ? `${BACKEND_URL}:30001`
+      : `${BACKEND_URL_PROD}`;
+      
   useEffect(() => {
     // deleteMoments();
     fetchMoments();
@@ -22,7 +27,7 @@ export const useMomentsManager = () => {
 
     if (!momentsData || momentsData.length === 0) {
       try {
-        const response = await axios.get(`${BACKEND_URL}:30001/moments`);
+        const response = await axios.get(`${momentUrl}/moments`);
         if (response.status === 200 && response.data) {
           momentsData = response.data.moments;
           await storeItem('moments', momentsData);
@@ -39,7 +44,7 @@ export const useMomentsManager = () => {
 
   const addMoment = async moment => {
     try {
-      const response = await axios.post(`${BACKEND_URL}:30001/moments`, {
+      const response = await axios.post(`${momentUrl}/moments`, {
         newMoment: moment,
       });
       if (response.status === 200 && response.data) {
@@ -57,7 +62,7 @@ export const useMomentsManager = () => {
 
   const updateMoment = async moment => {
     try {
-      const response = await axios.put(`${BACKEND_URL}:30001/moments`, {
+      const response = await axios.put(`${momentUrl}/moments`, {
         moment,
       });
       if (response.status === 200 && response.data) {
@@ -77,7 +82,7 @@ export const useMomentsManager = () => {
 
   const deleteMoment = async momentId => {
     try {
-      const response = await axios.delete(`${BACKEND_URL}:30001/moments`, {
+      const response = await axios.delete(`${momentUrl}/moments`, {
         data: {id: momentId},
       });
       if (response.status === 200) {

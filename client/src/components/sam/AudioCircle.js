@@ -4,14 +4,17 @@ import useAudioStream from '../../hooks/useAudioStream';
 import Sound from 'react-native-sound';
 import RNFS from 'react-native-fs';
 import {playChunk} from '../../utils/AudioChunkPlayer';
-
-import {BACKEND_URL} from '@env';
+import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
 
 const AudioCircle = () => {
   const [circleSize, setCircleSize] = useState(200);
   const [displayText, setDisplayText] = useState('');
   const wordDetected = useRef(false);
 
+  const samUrl =
+    process.env.LOCAL_DEV === 'True'
+      ? `${BACKEND_URL}:30002`
+      : `${BACKEND_URL_PROD}`;
   const handleWordDetected = word => {
     console.log('Word detected:', word);
     wordDetected.current = true;
@@ -25,7 +28,7 @@ const AudioCircle = () => {
       console.log('Silence detected sending message:', message);
       wordDetected.current = false;
       try {
-        const response = await fetch(`${BACKEND_URL}:30002/sam`, {
+        const response = await fetch(`${samUrl}/sam`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

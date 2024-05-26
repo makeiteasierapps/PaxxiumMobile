@@ -6,7 +6,7 @@ BOSS_AGENT_FILE="../../agents/BossAgent.py"
 cp "$CHAT_SERVICE_FILE" .
 cp "$BOSS_AGENT_FILE" .
 
-gcloud functions deploy chat \
+gcloud functions deploy chatMobile \
   --gen2 \
   --runtime=python311 \
   --trigger-http \

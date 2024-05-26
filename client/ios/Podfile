@@ -53,5 +53,14 @@ target 'Friend' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
+  
+    # Ensure Flipper is only included in Debug builds
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        if config.name == 'Release'
+          config.build_settings['OTHER_CFLAGS'] = '-DFB_SONARKIT_ENABLED=0'
+        end
+      end
+    end
   end
 end

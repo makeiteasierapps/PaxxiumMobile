@@ -1,8 +1,8 @@
 #!/bin/bash
 
-MONGO_SERVICE_FILE="../../services/mongo_service.py"
+MOMENT_SERVICE_FILE="../../services/MomentService.py"
 
-cp "$MONGO_SERVICE_FILE" .
+cp "$MOMENT_SERVICE_FILE" .
 
 gcloud functions deploy moments \
   --gen2 \

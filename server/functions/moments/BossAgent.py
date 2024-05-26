@@ -1,4 +1,5 @@
 import os
+from pydub import AudioSegment
 import tiktoken
 from openai import OpenAI
 import dspy
@@ -141,6 +142,42 @@ class BossAgent:
                 }
                 yield stream_obj
 
+    def get_full_response(self, message):
+        response = self.openai_client.chat.completions.create(
+            model=self.model,
+            messages=[{
+                "role": "user",
+                "content": message,
+            }],
+        )
+        print('Sam', response.choices[0].message.content)
+        return response.choices[0].message.content
+    
+    def stream_audio_response(self, message):
+        print(message)
+        file_path = 'audio.mp3'
+        
+        # Delete the existing file if it exists
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        response = self.openai_client.audio.speech.create(
+            model="tts-1",
+            voice="nova",
+            input=message,
+        )
+
+        response.stream_to_file(file_path)
+        
+        # Normalize the audio file
+        audio = AudioSegment.from_file(file_path)
+        normalized_audio = audio.apply_gain(-audio.max_dBFS)
+        normalized_audio.export(file_path, format="mp3")
+        
+        # for chunk in response.iter_bytes(chunk_size=4096):
+        #     if chunk:
+        #         yield chunk
+ 
     def manage_chat(self, chat_history, new_user_message, system_message):
         """
         Takes a chat object extracts x amount of tokens and returns a message

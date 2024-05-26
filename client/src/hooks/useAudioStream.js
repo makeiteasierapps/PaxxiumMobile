@@ -1,66 +1,29 @@
 import {useState, useRef, useEffect, useContext} from 'react';
-import jsTokens from 'js-tokens';
 import {DEEPGRAM_API_KEY} from '@env';
 import {BluetoothContext} from '../contexts/BluetoothContext';
-import {MomentsContext} from '../contexts/MomentsContext';
 import LiveAudioStream from 'react-native-live-audio-stream';
 import base64 from 'react-native-base64';
 import BleManager from 'react-native-ble-manager';
 
-const useAudioStream = () => {
+const useAudioStream = (
+  onWordDetected,
+  onSilenceDetected,
+  updateTranscriptState,
+) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [lastWasSilence, setLastWasSilence] = useState(true);
-  const [displayTranscript, setDisplayTranscript] = useState('');
-  const tokenCount = useRef(0);
+  const silenceRef = useRef(null);
   const streamingTranscript = useRef('');
   const ws = useRef(null);
-  const currentMomentRef = useRef(null);
-  const silenceTimer = useRef(null);
   const {bleManagerEmitter} = useContext(BluetoothContext);
-  const {setMoments, addMoment, updateMoment} = useContext(MomentsContext);
   const serviceUUID = '19B10000-E8F2-537E-4F6C-D104768A1214';
   const audioCharacteristicUUID = '19B10001-E8F2-537E-4F6C-D104768A1214';
 
   // This is the function responsible for handling the data received from the Bluetooth device
   const handleUpdateValueForCharacteristic = data => {
     const array = new Uint8Array(data.value);
+    // for some reason the firmware sends 3 bytes of garbage data at the beginning
     const modifiedArray = array.slice(3);
     ws.current.send(modifiedArray.buffer);
-  };
-
-  const countTokens = text => {
-    const token_count = Array.from(jsTokens(text)).length;
-    return token_count;
-  };
-
-  const createOrUpdateMoment = async transcript => {
-    if (currentMomentRef.current) {
-      try {
-        const momentId = currentMomentRef.current.momentId;
-        await updateMoment({momentId, transcript, date: new Date()});
-      } catch (error) {
-        console.error('Error updating moment', error);
-      }
-    } else {
-      try {
-        const newMoment = {
-          transcript,
-          date: new Date(),
-        };
-        const newMomentId = await addMoment(newMoment);
-        newMoment.momentId = newMomentId;
-        currentMomentRef.current = newMoment;
-      } catch (error) {
-        console.error('Error creating moment', error);
-      }
-    }
-  };
-
-  const resetSilenceTimer = () => {
-    silenceTimer.current = setTimeout(() => {
-      createOrUpdateMoment(streamingTranscript.current);
-      streamingTranscript.current = '';
-    }, 30000);
   };
 
   const startRecording = async () => {
@@ -86,9 +49,9 @@ const useAudioStream = () => {
     setIsRecording(false);
 
     if (streamingTranscript.current) {
-      await createOrUpdateMoment(streamingTranscript.current);
+      onWordDetected && onWordDetected(streamingTranscript.current);
       streamingTranscript.current = '';
-      setDisplayTranscript('');
+      updateTranscriptState('');
     }
 
     // Stop Bluetooth streaming if it was started
@@ -110,28 +73,14 @@ const useAudioStream = () => {
   };
 
   const handleSilenceDetected = () => {
-    console.log('Silence detected');
-    if (!lastWasSilence) {
-      setLastWasSilence(true);
-      resetSilenceTimer();
-    }
+    onSilenceDetected && onSilenceDetected(streamingTranscript.current);
   };
 
   const handleWordDetected = transcribedWord => {
-    clearTimeout(silenceTimer.current);
-    setLastWasSilence(false);
-
-    const tokens = countTokens(transcribedWord);
-    tokenCount.current += tokens;
+    silenceRef.current = false;
     streamingTranscript.current += ' ' + transcribedWord;
-    setDisplayTranscript(prev => prev + ' ' + transcribedWord);
-
-    if (tokenCount.current >= 100) {
-      console.log('Token count reached', tokenCount.current);
-      createOrUpdateMoment(streamingTranscript.current);
-      streamingTranscript.current = '';
-      tokenCount.current = 0;
-    }
+    updateTranscriptState(prev => prev + ' ' + transcribedWord);
+    onWordDetected && onWordDetected(transcribedWord);
   };
 
   const initWebSocket = async peripheralId => {
@@ -207,7 +156,6 @@ const useAudioStream = () => {
     );
 
     return () => {
-      clearTimeout(silenceTimer.current);
       bleManagerEmitter.removeAllListeners(
         'BleManagerDidUpdateValueForCharacteristic',
       );
@@ -219,7 +167,6 @@ const useAudioStream = () => {
 
   return {
     isRecording,
-    displayTranscript,
     initWebSocket,
     stopRecording,
     startRecording,

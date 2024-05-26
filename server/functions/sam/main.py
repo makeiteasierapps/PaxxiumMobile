@@ -19,6 +19,13 @@ def cors_preflight_response():
         "Access-Control-Max-Age": "3600",
     })
 
+def check_api_key(request):
+    api_key = request.headers.get('X-API-Key')
+    if api_key == os.getenv('API_KEY'):
+        return True
+    else:
+        return False
+
 def handle_new_message(request):
     new_message = request.json['newMessage']
     boss_agent = BossAgent()
@@ -29,6 +36,9 @@ def handle_new_message(request):
 def sam(request):
     if request.method == 'OPTIONS':
         return cors_preflight_response()
+    
+    if not check_api_key(request):
+        return {'message': 'Unauthorized'}, 401, headers
     
     if request.method == 'POST':
         return handle_new_message(request)

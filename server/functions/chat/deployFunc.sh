@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CHAT_SERVICE_FILE="../../services/chat_services.py"
+CHAT_SERVICE_FILE="../../services/ChatService.py"
 BOSS_AGENT_FILE="../../agents/BossAgent.py"
 
 cp "$CHAT_SERVICE_FILE" .

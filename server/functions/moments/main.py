@@ -1,14 +1,10 @@
-import re
 import os
-import json
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from flask import jsonify
 
-headers = {"Access-Control-Allow-Origin": "*"}
 load_dotenv()
 
-# Google clouds file structure is different
 if os.getenv('LOCAL_DEV') == 'True':
     from .MomentService import MomentService
     from .BossAgent import BossAgent
@@ -20,20 +16,20 @@ mongo_uri = os.getenv('MONGO_URI')
 client = MongoClient(mongo_uri)
 db = client['paxxium']
 
+headers = {"Access-Control-Allow-Origin": "*"}
 def cors_preflight_response():
-    cors_headers = {
+    return ("", 204, {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS, DELETE, PUT, PATCH",
         "Access-Control-Allow-Headers": "Authorization, Content-Type, Project-ID",
         "Access-Control-Max-Age": "3600",
-    }
-    return ("", 204, cors_headers)
+    })
 
 def handle_fetch_moments():
     # Get all moments from the database
     moment_service = MomentService()
-    moments_list = moment_service.get_all_moments()
-    return moments_list
+    return moment_service.get_all_moments()
+    
 
 def handle_add_moment(request):
     """
@@ -44,13 +40,15 @@ def handle_add_moment(request):
     data = request.json
     new_moment = data['newMoment']
     new_moment = {**new_moment, **boss_agent.extract_content(new_moment)}
+
     # Add the moment to the database
     new_moment = moment_service.add_moment(new_moment)
-    # Create the first snapshot for the moment
-    action_items_str = "Action Items:\n" + "\n".join(new_moment['actionItems'])
-    combined_content = f"Transcript: {new_moment['transcript']}\n{action_items_str}\nSummary: {new_moment['summary']}"
+    # Prepare snapshot for embeddings
+    combined_content = f"Transcript: {new_moment['transcript']}\nAction Items:\n" + "\n".join(new_moment['actionItems']) + f"\nSummary: {new_moment['summary']}"
     snapshot_data = new_moment.copy()
+    # Create and add embeddings to the snapshot
     snapshot_data['embeddings'] = boss_agent.embed_content(combined_content)
+    # Add the snapshot to the database
     moment_service.create_snapshot(snapshot_data)
     
     return new_moment
@@ -58,17 +56,14 @@ def handle_add_moment(request):
 def handle_update_moment(request):
     boss_agent = BossAgent()
     moment_service = MomentService()
-    data = request.json
-
-    current_moment = data['moment']
+    current_moment = request.json['moment']
     moment_id = current_moment['momentId']
     current_snapshot = {**current_moment, **boss_agent.extract_content(current_moment)}
     current_snapshot['momentId'] = moment_id
     previous_snapshot = moment_service.get_previous_snapshot(moment_id)
 
     # Combine and embed the current snapshot
-    action_items_str = "Action Items:\n" + "\n".join(current_snapshot['actionItems'])
-    combined_content = f"Transcript: {current_moment['transcript']}\n{action_items_str}\nSummary: {current_snapshot['summary']}"
+    combined_content = f"Transcript: {current_moment['transcript']}\nAction Items:\n" + "\n".join(current_snapshot['actionItems']) + f"\nSummary: {current_snapshot['summary']}"
     current_snapshot['embeddings'] = boss_agent.embed_content(combined_content)
     
     # Create snapshot in the db
@@ -76,20 +71,19 @@ def handle_update_moment(request):
 
     # diff the current snapshot with the previous snapshot
     new_snapshot = boss_agent.diff_snapshots(previous_snapshot, current_snapshot)
+    new_snapshot.update({
+        'momentId': moment_id,
+        'date': current_moment['date'],
+        'transcript': current_moment['transcript']
+    })
 
-    new_snapshot['momentId'] = moment_id
-    new_snapshot['date'] = current_moment['date']
-    new_snapshot['transcript'] = current_moment['transcript']
-
-    new_transcript = moment_service.update_moment(new_snapshot)
-    new_snapshot['transcript'] = new_transcript
+    new_snapshot['transcript'] = moment_service.update_moment(new_snapshot)
     
     return new_snapshot
 
 def handle_delete_moment(request):
     moment_service = MomentService()
-    data = request.json
-    moment_id = data['id']
+    moment_id = request.json['id']
     moment_service.delete_moment(moment_id)
     return 'Moment Deleted'
 
@@ -98,18 +92,12 @@ def moments(request):
         return cors_preflight_response()
 
     if request.path in ('/', '/moments'):
-       if request.method == 'GET':
-            moments_list = handle_fetch_moments()
-            return jsonify({'moments': moments_list}), 200, headers
-       
-       if request.method == 'POST':
-            new_moment = handle_add_moment(request)
-            return jsonify({'moment': new_moment}), 200, headers
-       
-       if request.method == 'PUT':
-            updated_moment = handle_update_moment(request)
-            return jsonify({'moment': updated_moment}), 200, headers
-       
-       if request.method == 'DELETE':
+        if request.method == 'GET':
+            return jsonify({'moments': handle_fetch_moments()}), 200, headers
+        if request.method == 'POST':
+            return jsonify({'moment': handle_add_moment(request)}), 200, headers
+        if request.method == 'PUT':
+            return jsonify({'moment': handle_update_moment(request)}), 200, headers
+        if request.method == 'DELETE':
             handle_delete_moment(request)
             return ('Delete Moment', 200, headers)

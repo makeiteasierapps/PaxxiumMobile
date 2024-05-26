@@ -1,4 +1,5 @@
 import os
+from pydub import AudioSegment
 import tiktoken
 from openai import OpenAI
 import dspy
@@ -166,6 +167,11 @@ class BossAgent:
         )
 
         response.stream_to_file(file_path)
+        
+        # Normalize the audio file
+        audio = AudioSegment.from_file(file_path)
+        normalized_audio = audio.apply_gain(-audio.max_dBFS)
+        normalized_audio.export(file_path, format="mp3")
         
         # for chunk in response.iter_bytes(chunk_size=4096):
         #     if chunk:

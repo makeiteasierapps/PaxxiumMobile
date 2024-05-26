@@ -125,7 +125,15 @@ class ChatService:
             )
         else:
             print("MongoDB connection is not initialized.")
-            
+    
+    def query_snapshots(self, pipeline):
+        self._initialize_client()
+        if self.db is not None:
+            return list(self.db["snapshots"].aggregate(pipeline))
+        else:
+            print("MongoDB connection is not initialized.")
+            return []
+    
     def close_connection(self):
         if self.client:
             self.client.close()

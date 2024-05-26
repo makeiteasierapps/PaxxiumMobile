@@ -154,7 +154,6 @@ class BossAgent:
         return response.choices[0].message.content
     
     def stream_audio_response(self, message):
-        print(message)
         file_path = 'audio.mp3'
         
         # Delete the existing file if it exists
@@ -225,7 +224,6 @@ class BossAgent:
         text = []
 
         for item in query_results:
-            print(item)
             if item['score'] > 0.2:
                 action_items = ', '.join(item['actionItems'])
                 text.append(item['transcript'])

@@ -1,5 +1,4 @@
 import os
-from pymongo import MongoClient
 from dotenv import load_dotenv
 from flask import jsonify
 
@@ -11,10 +10,6 @@ if os.getenv('LOCAL_DEV') == 'True':
 else:
     from MomentService import MomentService
     from BossAgent import BossAgent
-
-mongo_uri = os.getenv('MONGO_URI')
-client = MongoClient(mongo_uri)
-db = client['paxxium']
 
 headers = {"Access-Control-Allow-Origin": "*"}
 def cors_preflight_response():
@@ -37,8 +32,7 @@ def handle_add_moment(request):
     """
     moment_service = MomentService()
     boss_agent = BossAgent()
-    data = request.json
-    new_moment = data['newMoment']
+    new_moment = request.json['newMoment']
     new_moment = {**new_moment, **boss_agent.extract_content(new_moment)}
 
     # Add the moment to the database

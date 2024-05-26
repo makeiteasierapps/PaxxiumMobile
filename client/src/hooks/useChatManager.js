@@ -113,14 +113,9 @@ export const useChatManager = () => {
     addMessage(chatId, userMessage);
 
     const chatHistory = await getMessages(chatId);
-    const dataPacket = {
-      chatId,
-      userMessage,
-      chatHistory,
-    };
 
     try {
-      const response = await sendUserMessage(dataPacket);
+      const response = await sendUserMessage(chatId, userMessage, chatHistory);
       await handleStreamingResponse(response, chatId);
     } catch (error) {
       console.error(error);
@@ -128,9 +123,19 @@ export const useChatManager = () => {
     }
   };
 
-  const sendUserMessage = async dataPacket => {
-    const response = await axios.post(`${chatUrl}/chat/messages`, {
-      data: dataPacket,
+  // using fetch instead of axios because axios doesn't support streaming
+  const sendUserMessage = async (chatId, userMessage, chatHistory) => {
+    const response = await fetch(`${chatUrl}/chat/messages`, {
+      reactNative: {textStreaming: true},
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chatId,
+        userMessage,
+        chatHistory,
+      }),
     });
 
     if (!response.ok) {

@@ -10,12 +10,12 @@ export const useMomentsManager = () => {
   const [isLoading, setIsLoading] = useState(false);
   const {storeItem, retrieveItem, deleteMoments} = useSecureStorage();
   const {showSnackbar} = useContext(SnackbarContext);
-
+  const API_KEY = process.env.API_KEY;
   const momentUrl =
     process.env.LOCAL_DEV === 'True'
       ? `${BACKEND_URL}:30001`
       : `${BACKEND_URL_PROD}`;
-      
+
   useEffect(() => {
     // deleteMoments();
     fetchMoments();
@@ -27,7 +27,11 @@ export const useMomentsManager = () => {
 
     if (!momentsData || momentsData.length === 0) {
       try {
-        const response = await axios.get(`${momentUrl}/moments`);
+        const response = await axios.get(`${momentUrl}/moments`, {
+          headers: {
+            'X-API-Key': API_KEY,
+          },
+        });
         if (response.status === 200 && response.data) {
           momentsData = response.data.moments;
           await storeItem('moments', momentsData);
@@ -44,9 +48,17 @@ export const useMomentsManager = () => {
 
   const addMoment = async moment => {
     try {
-      const response = await axios.post(`${momentUrl}/moments`, {
-        newMoment: moment,
-      });
+      const response = await axios.post(
+        `${momentUrl}/moments`,
+        {
+          newMoment: moment,
+        },
+        {
+          headers: {
+            'X-API-Key': API_KEY,
+          },
+        },
+      );
       if (response.status === 200 && response.data) {
         const updatedMoments = (await retrieveItem('moments')) || [];
         updatedMoments.push(response.data.moment);
@@ -62,9 +74,17 @@ export const useMomentsManager = () => {
 
   const updateMoment = async moment => {
     try {
-      const response = await axios.put(`${momentUrl}/moments`, {
-        moment,
-      });
+      const response = await axios.put(
+        `${momentUrl}/moments`,
+        {
+          moment,
+        },
+        {
+          headers: {
+            'X-API-Key': API_KEY,
+          },
+        },
+      );
       if (response.status === 200 && response.data) {
         const updatedMoments = (await retrieveItem('moments')) || [];
         const index = updatedMoments.findIndex(
@@ -84,6 +104,9 @@ export const useMomentsManager = () => {
     try {
       const response = await axios.delete(`${momentUrl}/moments`, {
         data: {id: momentId},
+        headers: {
+          'X-API-Key': API_KEY,
+        },
       });
       if (response.status === 200) {
         let updatedMoments = (await retrieveItem('moments')) || [];

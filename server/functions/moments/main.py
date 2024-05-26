@@ -20,6 +20,13 @@ def cors_preflight_response():
         "Access-Control-Max-Age": "3600",
     })
 
+def check_api_key(request):
+    api_key = request.headers.get('X-API-Key')
+    if api_key == os.getenv('API_KEY'):
+        return True
+    else:
+        return False
+
 def handle_fetch_moments():
     # Get all moments from the database
     moment_service = MomentService()
@@ -84,6 +91,9 @@ def handle_delete_moment(request):
 def moments(request):
     if request.method == "OPTIONS":
         return cors_preflight_response()
+    
+    if not check_api_key(request):
+        return {'message': 'Unauthorized'}, 401, headers
 
     if request.path in ('/', '/moments'):
         if request.method == 'GET':

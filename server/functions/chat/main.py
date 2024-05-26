@@ -13,7 +13,6 @@ else:
     from BossAgent import BossAgent
 
 headers = {"Access-Control-Allow-Origin": "*"}
-
 def cors_preflight_response():
     cors_headers = {
         "Access-Control-Allow-Origin": "*",
@@ -23,6 +22,13 @@ def cors_preflight_response():
     }
     return ("", 204, cors_headers)
 
+def check_api_key(request):
+    api_key = request.headers.get('X-API-Key')
+    if api_key == os.getenv('API_KEY'):
+        return True
+    else:
+        return False
+    
 def handle_fetch_chats(request):
     user_id = request.headers.get('userId')
     return ChatService().get_all_chats(user_id)
@@ -73,6 +79,9 @@ def handle_post_message(request):
 def chat(request):
     if request.method == "OPTIONS":
         return cors_preflight_response()
+    
+    if not check_api_key(request):
+        return {'message': 'Unauthorized'}, 401, headers
 
     if request.path in ('/', '/chat'):
         if request.method == 'GET':

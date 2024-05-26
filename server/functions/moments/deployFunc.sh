@@ -1,8 +1,10 @@
 #!/bin/bash
 
 MOMENT_SERVICE_FILE="../../services/MomentService.py"
+BOSS_AGENT_FILE="../../agents/BossAgent.py"
 
 cp "$MOMENT_SERVICE_FILE" .
+cp "$BOSS_AGENT_FILE" .
 
 gcloud functions deploy moments \
   --gen2 \

@@ -6,6 +6,7 @@ import {useSecureStorage} from './useSecureStorage';
 
 export const useMomentsManager = () => {
   const [moments, setMoments] = useState([]);
+  const [currentMoment, setCurrentMoment] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const {storeItem, retrieveItem, deleteMoments} = useSecureStorage();
   const {showSnackbar} = useContext(SnackbarContext);
@@ -93,6 +94,31 @@ export const useMomentsManager = () => {
     }
   };
 
+  const createOrUpdateMoment = async transcript => {
+    if (currentMoment) {
+      console.log('Updating moment:', currentMoment);
+      try {
+        const momentId = currentMoment.momentId;
+        await updateMoment({momentId, transcript, date: new Date()});
+      } catch (error) {
+        console.error('Error updating moment', error);
+      }
+    } else {
+      console.log('Creating new moment');
+      try {
+        const newMoment = {
+          transcript,
+          date: new Date(),
+        };
+        const newMomentId = await addMoment(newMoment);
+        newMoment.momentId = newMomentId;
+        setCurrentMoment(newMoment);
+      } catch (error) {
+        console.error('Error creating moment', error);
+      }
+    }
+  };
+
   return {
     moments,
     isLoading,
@@ -100,5 +126,6 @@ export const useMomentsManager = () => {
     addMoment,
     updateMoment,
     deleteMoment,
+    createOrUpdateMoment,
   };
 };

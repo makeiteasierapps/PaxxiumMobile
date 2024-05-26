@@ -51,14 +51,14 @@ const App = () => {
 export default () => (
   <SnackbarProvider>
     <AuthProvider>
-      <MomentsProvider>
-        <ChatProvider>
-          <BluetoothProvider>
+      <BluetoothProvider>
+        <MomentsProvider>
+          <ChatProvider>
             <App />
-          </BluetoothProvider>
-          <MySnackBar />
-        </ChatProvider>
-      </MomentsProvider>
+          </ChatProvider>
+        </MomentsProvider>
+      </BluetoothProvider>
+      <MySnackBar />
     </AuthProvider>
   </SnackbarProvider>
 );

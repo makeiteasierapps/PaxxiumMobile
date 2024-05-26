@@ -2,11 +2,13 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MomentsStackNavigator from '../navigators/MomentsStackNavigator';
 import SettingsStackNavigator from '../navigators/SettingsStackNavigator';
 import ChatStackNavigator from '../navigators/ChatStackNavigator';
+import VisionStackNavigator from '../navigators/VisionStackNavigator';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faComment,
   faCameraRetro,
   faCog,
+  faEye,
 } from '@fortawesome/free-solid-svg-icons';
 
 const Tab = createBottomTabNavigator();
@@ -18,9 +20,9 @@ const MainScreen = () => {
         tabBarStyle: {
           backgroundColor: '#000',
           borderTopWidth: 0,
-          padding: 50,
-          height: 120,
-          marginBottom: 0
+          marginBottom: 0,
+          paddingBottom: 15,
+          height: 60,
         },
         headerShown: false,
         tabBarLabel: () => null,
@@ -30,7 +32,7 @@ const MainScreen = () => {
         component={ChatStackNavigator}
         options={{
           tabBarIcon: ({color}) => (
-            <FontAwesomeIcon icon={faComment} size={24} color={color} />
+            <FontAwesomeIcon icon={faComment} size={30} color={color} />
           ),
         }}
       />
@@ -40,8 +42,17 @@ const MainScreen = () => {
         options={{
           tabBarIcon: ({color}) => {
             return (
-              <FontAwesomeIcon icon={faCameraRetro} size={24} color={color} />
+              <FontAwesomeIcon icon={faCameraRetro} size={30} color={color} />
             );
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Vision"
+        component={VisionStackNavigator}
+        options={{
+          tabBarIcon: ({color}) => {
+            return <FontAwesomeIcon icon={faEye} size={30} color={color} />;
           },
         }}
       />
@@ -50,7 +61,7 @@ const MainScreen = () => {
         component={SettingsStackNavigator}
         options={{
           tabBarIcon: ({color}) => {
-            return <FontAwesomeIcon icon={faCog} size={24} color={color} />;
+            return <FontAwesomeIcon icon={faCog} size={30} color={color} />;
           },
         }}
       />

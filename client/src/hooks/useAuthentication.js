@@ -30,7 +30,10 @@ export const useAuthentication = () => {
     userInfo['userId'] = newUserId;
     userInfo['isLoggedIn'] = true;
     try {
-      let users = await retrieveUsers();
+      let users = await retrieveItem('users');
+      if (!users) {
+        users = {};
+      }
       users[newUserId] = userInfo;
       await storeItem('users', users);
       setIsAuthorized(true);

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+BOSS_AGENT_FILE="../../agents/BossAgent.py"
+cp "$BOSS_AGENT_FILE" .
+
 gcloud functions deploy sam \
   --gen2 \
   --runtime=python311 \

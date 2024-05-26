@@ -1,8 +1,10 @@
 #!/bin/bash
 
 CHAT_SERVICE_FILE="../../services/chat_services.py"
+BOSS_AGENT_FILE="../../agents/BossAgent.py"
 
 cp "$CHAT_SERVICE_FILE" .
+cp "$BOSS_AGENT_FILE" .
 
 gcloud functions deploy chat \
   --gen2 \

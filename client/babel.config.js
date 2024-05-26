@@ -3,6 +3,5 @@ module.exports = {
   plugins: [
     ['module:react-native-dotenv'],
     ['react-native-worklets-core/plugin'],
-    ['react-native-reanimated/plugin'],
   ],
 };

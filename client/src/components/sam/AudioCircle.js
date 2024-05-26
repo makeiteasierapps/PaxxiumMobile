@@ -10,7 +10,7 @@ const AudioCircle = () => {
   const [circleSize, setCircleSize] = useState(200);
   const [displayText, setDisplayText] = useState('');
   const wordDetected = useRef(false);
-
+  const API_KEY = process.env.API_KEY;
   const samUrl =
     process.env.LOCAL_DEV === 'True'
       ? `${BACKEND_URL}:30002`
@@ -32,6 +32,7 @@ const AudioCircle = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-API-Key': API_KEY,
           },
           body: JSON.stringify({
             newMessage: message,

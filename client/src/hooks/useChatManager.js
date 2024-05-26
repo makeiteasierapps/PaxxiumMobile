@@ -18,6 +18,7 @@ export const useChatManager = () => {
   const ignoreNextTokenRef = useRef(false);
   const languageRef = useRef(null);
 
+  const API_KEY = process.env.API_KEY;
   const chatUrl =
     process.env.LOCAL_DEV === 'True'
       ? `${BACKEND_URL}:30000`
@@ -82,6 +83,7 @@ export const useChatManager = () => {
     const response = await axios.get(`${chatUrl}/chat`, {
       headers: {
         userId: userId,
+        'X-API-Key': API_KEY,
       },
     });
 
@@ -130,6 +132,7 @@ export const useChatManager = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-API-Key': API_KEY,
       },
       body: JSON.stringify({
         chatId,
@@ -223,6 +226,9 @@ export const useChatManager = () => {
     try {
       const response = await axios.delete(`${chatUrl}/chat/messages`, {
         data: {chatId},
+        headers: {
+          'X-API-Key': API_KEY,
+        },
       });
 
       if (!response.ok) throw new Error('Failed to clear messages');
@@ -257,6 +263,9 @@ export const useChatManager = () => {
     try {
       const response = await axios.delete(`${chatUrl}/chat`, {
         data: {chatId},
+        headers: {
+          'X-API-Key': API_KEY,
+        },
       });
 
       if (response.status !== 200)
@@ -289,6 +298,7 @@ export const useChatManager = () => {
         {
           headers: {
             'Content-Type': 'application/json',
+            'X-API-Key': API_KEY,
           },
         },
       );

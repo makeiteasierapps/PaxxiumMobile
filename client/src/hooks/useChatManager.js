@@ -19,7 +19,7 @@ export const useChatManager = () => {
   const languageRef = useRef(null);
 
   const chatUrl =
-    process.env.NODE_ENV === 'development'
+    process.env.LOCAL_DEV === 'True'
       ? `${BACKEND_URL}:30000`
       : BACKEND_URL_PROD;
 

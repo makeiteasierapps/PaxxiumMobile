@@ -31,16 +31,16 @@ const AudioCircle = () => {
         if (keywordIndex >= 0) {
           console.log('Wake word detected!');
 
+          Sound.setCategory('Playback');
           // Play the MP3 file
           const sound = new Sound(
-            'client/src/assets/genAudio/greeting1Nova.mp3',
+            'greeting1Nova.mp3',
             Sound.MAIN_BUNDLE,
             error => {
               if (error) {
                 console.error('Failed to load the sound', error);
                 return;
               }
-              Sound.setCategory('Playback');
               sound.setVolume(1);
               sound.play(success => {
                 if (!success) {
@@ -66,14 +66,13 @@ const AudioCircle = () => {
           detectionCallback,
           processErrorCallback,
         );
-        let didStart = await porcupineRef.current.start();
+        await porcupineRef.current.start();
       } catch (err) {
         console.error('Failed to initialize Porcupine', err);
       }
     };
 
     initPorcupine();
-    
 
     return () => {
       porcupineRef.current.stop();
@@ -165,8 +164,11 @@ const AudioCircle = () => {
     }
   };
 
-  const {startRecording, stopRecording, isRecording} =
-    useAudioStream(handleWordDetected, handleSilenceDetected, setDisplayText);
+  const {startRecording, stopRecording, isRecording} = useAudioStream(
+    handleWordDetected,
+    handleSilenceDetected,
+    setDisplayText,
+  );
 
   const handlePress = () => {
     if (isRecording) {

@@ -98,7 +98,9 @@ const useAudioStream = (
       if (peripheralId) {
         startBluetoothStreaming(peripheralId);
       } else {
-        startPhoneStreaming();
+        startPhoneStreaming(audioData => {
+          ws.current.send(audioData);
+        });
       }
     };
 
@@ -113,23 +115,28 @@ const useAudioStream = (
     };
   };
 
-  const startPhoneStreaming = () => {
-    const options = {
+  const startPhoneStreaming = (onAudioData, customOptions) => {
+    const defaultOptions = {
       sampleRate: 8000,
       channels: 1,
       bitsPerSample: 16,
       bufferSize: 4096,
     };
+    const options = {...defaultOptions, ...customOptions};
     LiveAudioStream.init(options);
+    LiveAudioStream.start();
     LiveAudioStream.on('data', base64String => {
       const binaryString = base64.decode(base64String);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
       }
-      ws.current.send(bytes.buffer);
+
+      console.log('Bytes Buffer Length:', bytes.buffer.byteLength);
+
+      onAudioData(bytes);
     });
-    LiveAudioStream.start();
+
     setIsRecording(true);
   };
 
@@ -170,6 +177,7 @@ const useAudioStream = (
     initWebSocket,
     stopRecording,
     startRecording,
+    startPhoneStreaming,
   };
 };
 export default useAudioStream;

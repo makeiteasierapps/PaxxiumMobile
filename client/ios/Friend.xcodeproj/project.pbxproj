@@ -12,8 +12,6 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		49ACD7EAB7D6B073937736C3 /* libPods-Friend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6664B2577F46D4E6E80D9F47 /* libPods-Friend.a */; };
-		5BF0CD1F2C010F2300409A11 /* RCTCalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD1E2C010F2300409A11 /* RCTCalendarModule.m */; };
-		5BF0CD202C010F2300409A11 /* RCTCalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD1E2C010F2300409A11 /* RCTCalendarModule.m */; };
 		5BF0CD232C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */; };
 		5BF0CD242C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */; };
 		5BF0CD262C01438F00409A11 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF0CD252C01438F00409A11 /* AVFoundation.framework */; };
@@ -46,8 +44,6 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Friend/main.m; sourceTree = "<group>"; };
 		5BF0CD182C010EEC00409A11 /* Friend-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Friend-Bridging-Header.h"; sourceTree = "<group>"; };
 		5BF0CD192C010EEC00409A11 /* FriendTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FriendTests-Bridging-Header.h"; sourceTree = "<group>"; };
-		5BF0CD1D2C010F2300409A11 /* RCTCalendarModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTCalendarModule.h; sourceTree = "<group>"; };
-		5BF0CD1E2C010F2300409A11 /* RCTCalendarModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTCalendarModule.m; sourceTree = "<group>"; };
 		5BF0CD212C01421100409A11 /* RCTAudioStreamPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTAudioStreamPlayer.h; sourceTree = "<group>"; };
 		5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTAudioStreamPlayer.m; sourceTree = "<group>"; };
 		5BF0CD252C01438F00409A11 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -132,8 +128,6 @@
 			children = (
 				5BF0CD212C01421100409A11 /* RCTAudioStreamPlayer.h */,
 				5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */,
-				5BF0CD1D2C010F2300409A11 /* RCTCalendarModule.h */,
-				5BF0CD1E2C010F2300409A11 /* RCTCalendarModule.m */,
 				13B07FAE1A68108700A75B9A /* Friend */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* FriendTests */,
@@ -407,7 +401,6 @@
 			files = (
 				00E356F31AD99517003FC87E /* FriendTests.m in Sources */,
 				5BF0CD242C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */,
-				5BF0CD202C010F2300409A11 /* RCTCalendarModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,7 +408,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5BF0CD1F2C010F2300409A11 /* RCTCalendarModule.m in Sources */,
 				5BF0CD232C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
@@ -616,10 +608,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -687,10 +676,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

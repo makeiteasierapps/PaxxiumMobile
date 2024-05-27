@@ -83,7 +83,7 @@ def chat(request):
     if not check_api_key(request):
         return {'message': 'Unauthorized'}, 401, headers
 
-    if request.path in ('/', '/chat'):
+    if request.path in ('/', '/chatMobile'):
         if request.method == 'GET':
             return (handle_fetch_chats(request), 200, headers)
         if request.method == 'POST':
@@ -91,7 +91,7 @@ def chat(request):
         if request.method == 'DELETE':
             return (handle_delete_chat(request), 200, headers)
 
-    if request.path in ('/messages', '/chat/messages'):
+    if request.path in ('/messages', '/chatMobile/messages'):
         if request.method == 'POST':
             return (handle_post_message(request), 200, headers)
         if request.method == 'DELETE':

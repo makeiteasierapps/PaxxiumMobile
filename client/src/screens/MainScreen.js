@@ -2,7 +2,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MomentsStackNavigator from '../navigators/MomentsStackNavigator';
 import SettingsStackNavigator from '../navigators/SettingsStackNavigator';
 import ChatStackNavigator from '../navigators/ChatStackNavigator';
-import VisionStackNavigator from '../navigators/VisionStackNavigator';
+import SamStackNavigator from '../navigators/SamStackNavigator';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faComment,
@@ -49,7 +49,7 @@ const MainScreen = () => {
       />
       <Tab.Screen
         name="Vision"
-        component={VisionStackNavigator}
+        component={SamStackNavigator}
         options={{
           tabBarIcon: ({color}) => {
             return <FontAwesomeIcon icon={faEye} size={30} color={color} />;

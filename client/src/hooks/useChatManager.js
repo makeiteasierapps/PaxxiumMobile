@@ -24,6 +24,8 @@ export const useChatManager = () => {
       ? `${BACKEND_URL}:30000`
       : BACKEND_URL_PROD;
 
+  console.log('chatUrl:', chatUrl);
+
   useEffect(() => {
     setIsLoading(true);
     getChats()
@@ -80,7 +82,7 @@ export const useChatManager = () => {
   }, [chatUrl, setChatArray, setMessages, showSnackbar, userId]);
 
   const fetchChatsFromDB = async () => {
-    const response = await axios.get(`${chatUrl}/chat`, {
+    const response = await axios.get(`${chatUrl}/chatMobile`, {
       headers: {
         userId: userId,
         'X-API-Key': API_KEY,
@@ -127,7 +129,7 @@ export const useChatManager = () => {
 
   // using fetch instead of axios because axios doesn't support streaming
   const sendUserMessage = async (chatId, userMessage, chatHistory) => {
-    const response = await fetch(`${chatUrl}/chat/messages`, {
+    const response = await fetch(`${chatUrl}/chatMobile/messages`, {
       reactNative: {textStreaming: true},
       method: 'POST',
       headers: {
@@ -224,7 +226,7 @@ export const useChatManager = () => {
 
   const clearChat = async chatId => {
     try {
-      const response = await axios.delete(`${chatUrl}/chat/messages`, {
+      const response = await axios.delete(`${chatUrl}/chatMobile/messages`, {
         data: {chatId},
         headers: {
           'X-API-Key': API_KEY,
@@ -261,7 +263,7 @@ export const useChatManager = () => {
 
   const deleteChat = async chatId => {
     try {
-      const response = await axios.delete(`${chatUrl}/chat`, {
+      const response = await axios.delete(`${chatUrl}/chatMobile`, {
         data: {chatId},
         headers: {
           'X-API-Key': API_KEY,
@@ -289,7 +291,7 @@ export const useChatManager = () => {
   const createChat = async (model, chatName, userId) => {
     try {
       const response = await axios.post(
-        `${chatUrl}/chat`,
+        `${chatUrl}/chatMobile`,
         {
           model,
           chatName,

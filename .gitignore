@@ -93,3 +93,6 @@ apps/mobile/flutter/macos/Flutter/ephemeral/Flutter-Generated.xcconfig
 **/classic_triangle/assembly/
 **/classic_triangle/misc/
 **/step-versions/
+
+randomScripts.py
+genAudio

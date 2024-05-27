@@ -132,8 +132,7 @@ const useAudioStream = (
         bytes[i] = binaryString.charCodeAt(i);
       }
 
-      console.log('Bytes Buffer Length:', bytes.buffer.byteLength);
-
+      console.log(bytes.buffer.byteLength);
       onAudioData(bytes);
     });
 

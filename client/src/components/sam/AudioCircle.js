@@ -2,7 +2,10 @@ import React, {useState, useRef, useEffect} from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import useAudioStream from '../../hooks/useAudioStream';
 import Sound from 'react-native-sound';
-import {Porcupine, BuiltInKeywords} from '@picovoice/porcupine-react-native';
+import {
+  BuiltInKeywords,
+  PorcupineManager,
+} from '@picovoice/porcupine-react-native';
 import RNFS from 'react-native-fs';
 import {playChunk} from '../../utils/AudioChunkPlayer';
 import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
@@ -18,21 +21,62 @@ const AudioCircle = () => {
       ? `${BACKEND_URL}:30002`
       : `${BACKEND_URL_PROD}`;
 
+  const processErrorCallback = error => {
+    console.error(error);
+  };
+
+  const detectionCallback = async keywordIndex => {
+    if (porcupineRef.current) {
+      try {
+        if (keywordIndex >= 0) {
+          console.log('Wake word detected!');
+
+          // Play the MP3 file
+          const sound = new Sound(
+            'client/src/assets/genAudio/greeting1Nova.mp3',
+            Sound.MAIN_BUNDLE,
+            error => {
+              if (error) {
+                console.error('Failed to load the sound', error);
+                return;
+              }
+              Sound.setCategory('Playback');
+              sound.setVolume(1);
+              sound.play(success => {
+                if (!success) {
+                  console.error('Sound playback failed');
+                }
+              });
+            },
+          );
+        }
+      } catch (e) {
+        console.error('Error processing audio frame', e);
+      }
+    }
+  };
+
   useEffect(() => {
     const initPorcupine = async () => {
       try {
         const accessKey = process.env.PICO_ACCESS_KEY; // Your Picovoice access key
-        porcupineRef.current = await Porcupine.fromBuiltInKeywords(accessKey, [
-          BuiltInKeywords.COMPUTER,
-        ]);
+        porcupineRef.current = await PorcupineManager.fromBuiltInKeywords(
+          accessKey,
+          [BuiltInKeywords.COMPUTER],
+          detectionCallback,
+          processErrorCallback,
+        );
+        let didStart = await porcupineRef.current.start();
       } catch (err) {
         console.error('Failed to initialize Porcupine', err);
       }
     };
 
     initPorcupine();
+    
 
     return () => {
+      porcupineRef.current.stop();
       if (porcupineRef.current) {
         porcupineRef.current.delete();
       }
@@ -121,7 +165,7 @@ const AudioCircle = () => {
     }
   };
 
-  const {startRecording, stopRecording, isRecording, startPhoneStreaming} =
+  const {startRecording, stopRecording, isRecording} =
     useAudioStream(handleWordDetected, handleSilenceDetected, setDisplayText);
 
   const handlePress = () => {
@@ -133,47 +177,6 @@ const AudioCircle = () => {
     setCircleSize(prevSize => (prevSize === 200 ? 300 : 200));
     startRecording();
   };
-
-  useEffect(() => {
-    const processAudioFrame = async buffer => {
-      if (porcupineRef.current) {
-        try {
-          const keywordIndex = await porcupineRef.current.process(
-            new Int16Array(buffer),
-          );
-          if (keywordIndex >= 0) {
-            console.log('Wake word detected!');
-
-            // Play the MP3 file
-            const sound = new Sound(
-              'genAudio/greeting1Nova.mp3',
-              Sound.MAIN_BUNDLE,
-              error => {
-                if (error) {
-                  console.error('Failed to load the sound', error);
-                  return;
-                }
-                Sound.setCategory('Playback');
-                sound.setVolume(1);
-                sound.play(success => {
-                  if (!success) {
-                    console.error('Sound playback failed');
-                  }
-                });
-              },
-            );
-          }
-        } catch (e) {
-          console.error('Error processing audio frame', e);
-        }
-      }
-    };
-
-    const customOptions = {
-      bufferSize: 512,
-    };
-    startPhoneStreaming(processAudioFrame, customOptions);
-  }, [startPhoneStreaming]);
 
   return (
     <View>

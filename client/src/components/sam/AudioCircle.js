@@ -7,7 +7,7 @@ import {
   PorcupineManager,
 } from '@picovoice/porcupine-react-native';
 import RNFS from 'react-native-fs';
-import {playChunk} from '../../utils/AudioChunkPlayer';
+import {useFocusEffect} from '@react-navigation/native';
 import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
 
 const AudioCircle = () => {
@@ -30,9 +30,7 @@ const AudioCircle = () => {
       try {
         if (keywordIndex >= 0) {
           console.log('Wake word detected!');
-
           Sound.setCategory('Playback');
-          // Play the MP3 file
           const sound = new Sound(
             'greeting1Nova.mp3',
             Sound.MAIN_BUNDLE,
@@ -56,31 +54,34 @@ const AudioCircle = () => {
     }
   };
 
-  useEffect(() => {
-    const initPorcupine = async () => {
-      try {
-        const accessKey = process.env.PICO_ACCESS_KEY; // Your Picovoice access key
-        porcupineRef.current = await PorcupineManager.fromBuiltInKeywords(
-          accessKey,
-          [BuiltInKeywords.COMPUTER],
-          detectionCallback,
-          processErrorCallback,
-        );
-        await porcupineRef.current.start();
-      } catch (err) {
-        console.error('Failed to initialize Porcupine', err);
-      }
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const initPorcupine = async () => {
+        try {
+          const accessKey = process.env.PICO_ACCESS_KEY; // Your Picovoice access key
+          porcupineRef.current = await PorcupineManager.fromBuiltInKeywords(
+            accessKey,
+            [BuiltInKeywords.COMPUTER],
+            detectionCallback,
+            processErrorCallback,
+          );
+          await porcupineRef.current.start();
+        } catch (err) {
+          console.error('Failed to initialize Porcupine', err);
+        }
+      };
 
-    initPorcupine();
+      initPorcupine();
 
-    return () => {
-      porcupineRef.current.stop();
-      if (porcupineRef.current) {
-        porcupineRef.current.delete();
-      }
-    };
-  }, []);
+      return () => {
+        if (porcupineRef.current) {
+          porcupineRef.current.stop().then(() => {
+            porcupineRef.current.delete();
+          });
+        }
+      };
+    }, []),
+  );
 
   const handleWordDetected = word => {
     console.log('Word detected:', word);
@@ -128,38 +129,11 @@ const AudioCircle = () => {
             });
           };
           reader.readAsDataURL(blob);
-
-          // const reader = response.body.getReader();
-          // let accumulatedChunks = [];
-          // const processStream = async ({done, value}) => {
-          //   if (done) {
-          //     console.log('Stream completed');
-
-          //     const CHUNK_SIZE = 2000; // Define a reasonable chunk size
-
-          //     // Convert accumulated Uint8Array chunks to Int16Array
-          //     const uint8Array = new Uint8Array(accumulatedChunks.flat());
-          //     const int16Array = new Int16Array(uint8Array.buffer);
-
-          //     // Split the Int16Array into smaller chunks
-          //     for (let i = 0; i < int16Array.length; i += CHUNK_SIZE) {
-          //       const chunk = int16Array.slice(i, i + CHUNK_SIZE);
-          //       const int16ArrayForNative = Array.from(chunk);
-          //       playChunk(int16ArrayForNative);
-          //     }
-          //     return;
-          //   }
-          //   accumulatedChunks.push(value);
-          //   return reader.read().then(processStream);
-          // };
-
-          // reader.read().then(processStream);
         } else {
           throw new Error('Network response was not ok.');
         }
       } catch (error) {
         console.error('Error fetching moments:', error);
-        showSnackbar('Error fetching moments', 'error');
       }
     }
   };

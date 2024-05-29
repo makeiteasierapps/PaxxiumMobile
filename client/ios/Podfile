@@ -18,7 +18,7 @@ target 'Friend' do
   config = use_native_modules!
 
   pod 'react-native-worklets-core', :path => '../node_modules/react-native-worklets-core', :modular_headers => true
-  
+  pod 'Cobra-iOS'
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.

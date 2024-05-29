@@ -1,4 +1,5 @@
 import {useState, useRef, useEffect, useContext} from 'react';
+import {NativeModules} from 'react-native';
 import {DEEPGRAM_API_KEY} from '@env';
 import {BluetoothContext} from '../contexts/BluetoothContext';
 import LiveAudioStream from 'react-native-live-audio-stream';
@@ -17,7 +18,7 @@ const useAudioStream = (
   const {bleManagerEmitter} = useContext(BluetoothContext);
   const serviceUUID = '19B10000-E8F2-537E-4F6C-D104768A1214';
   const audioCharacteristicUUID = '19B10001-E8F2-537E-4F6C-D104768A1214';
-
+  const {CobraVadModule} = NativeModules;
   // This is the function responsible for handling the data received from the Bluetooth device
   const handleUpdateValueForCharacteristic = data => {
     const array = new Uint8Array(data.value);
@@ -69,6 +70,7 @@ const useAudioStream = (
         console.error('Stop notification error', error);
       }
     }
+    CobraVadModule.stopListening();
   };
 
   const handleSilenceDetected = () => {
@@ -97,10 +99,12 @@ const useAudioStream = (
       console.log('WebSocket connection opened');
       if (peripheralId) {
         startBluetoothStreaming(peripheralId);
+        CobraVadModule.startListening();
       } else {
         startPhoneStreaming(audioData => {
           ws.current.send(audioData);
         });
+        CobraVadModule.startListening();
       }
     };
 

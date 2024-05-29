@@ -24,8 +24,6 @@ export const useChatManager = () => {
       ? `${BACKEND_URL}:30000`
       : BACKEND_URL_PROD;
 
-  console.log('chatUrl:', chatUrl);
-
   useEffect(() => {
     setIsLoading(true);
     getChats()

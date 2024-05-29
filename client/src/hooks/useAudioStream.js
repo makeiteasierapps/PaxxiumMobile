@@ -45,12 +45,11 @@ const useAudioStream = (
     if (ws.current) {
       ws.current.send(JSON.stringify({type: 'CloseStream'}));
       ws.current.close();
+      console.log('WebSocket connection closed');
     }
     setIsRecording(false);
 
     if (streamingTranscript.current) {
-      onWordDetected && onWordDetected(streamingTranscript.current);
-      streamingTranscript.current = '';
       updateTranscriptState('');
     }
 
@@ -74,6 +73,7 @@ const useAudioStream = (
 
   const handleSilenceDetected = () => {
     onSilenceDetected && onSilenceDetected(streamingTranscript.current);
+    streamingTranscript.current = '';
   };
 
   const handleWordDetected = transcribedWord => {
@@ -132,7 +132,6 @@ const useAudioStream = (
         bytes[i] = binaryString.charCodeAt(i);
       }
 
-      console.log(bytes.buffer.byteLength);
       onAudioData(bytes);
     });
 

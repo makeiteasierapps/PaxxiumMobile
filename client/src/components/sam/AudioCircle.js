@@ -91,6 +91,7 @@ const AudioCircle = () => {
             stopRecording();
           });
         }
+        Sound.setCategory('Ambient'); // Reset the category when the component loses focus
       };
     }, []),
   );

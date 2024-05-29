@@ -13,6 +13,8 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		49ACD7EAB7D6B073937736C3 /* libPods-Friend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6664B2577F46D4E6E80D9F47 /* libPods-Friend.a */; };
 		5B4358BE2C055181003CBC0A /* greeting1Nova.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 5B4358BD2C055181003CBC0A /* greeting1Nova.mp3 */; };
+		5B4358C12C07F044003CBC0A /* CobraVadModuleBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B4358BF2C07F044003CBC0A /* CobraVadModuleBridge.m */; };
+		5B4358C22C07F044003CBC0A /* cobraVad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B4358C02C07F044003CBC0A /* cobraVad.swift */; };
 		5BF0CD232C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */; };
 		5BF0CD242C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */; };
 		5BF0CD262C01438F00409A11 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF0CD252C01438F00409A11 /* AVFoundation.framework */; };
@@ -44,6 +46,8 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Friend/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Friend/main.m; sourceTree = "<group>"; };
 		5B4358BD2C055181003CBC0A /* greeting1Nova.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = greeting1Nova.mp3; path = ../src/assets/genAudio/greeting1Nova.mp3; sourceTree = "<group>"; };
+		5B4358BF2C07F044003CBC0A /* CobraVadModuleBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CobraVadModuleBridge.m; sourceTree = "<group>"; };
+		5B4358C02C07F044003CBC0A /* cobraVad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = cobraVad.swift; sourceTree = "<group>"; };
 		5BF0CD182C010EEC00409A11 /* Friend-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Friend-Bridging-Header.h"; sourceTree = "<group>"; };
 		5BF0CD192C010EEC00409A11 /* FriendTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FriendTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		5BF0CD212C01421100409A11 /* RCTAudioStreamPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTAudioStreamPlayer.h; sourceTree = "<group>"; };
@@ -128,6 +132,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				5B4358C02C07F044003CBC0A /* cobraVad.swift */,
+				5B4358BF2C07F044003CBC0A /* CobraVadModuleBridge.m */,
 				5B4358BD2C055181003CBC0A /* greeting1Nova.mp3 */,
 				5BF0CD212C01421100409A11 /* RCTAudioStreamPlayer.h */,
 				5BF0CD222C01421100409A11 /* RCTAudioStreamPlayer.m */,
@@ -414,6 +420,8 @@
 			files = (
 				5BF0CD232C01421100409A11 /* RCTAudioStreamPlayer.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				5B4358C22C07F044003CBC0A /* cobraVad.swift in Sources */,
+				5B4358C12C07F044003CBC0A /* CobraVadModuleBridge.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -433,6 +441,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0A60E922B6B25D0CB48BBD53 /* Pods-Friend-FriendTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -464,6 +473,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 636D1F461ED5EDC89E0E6FC5 /* Pods-Friend-FriendTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;

@@ -14,11 +14,14 @@ const AudioCircle = () => {
   const [displayText, setDisplayText] = useState('');
   const wordDetected = useRef(false);
   const porcupineRef = useRef(null);
+  const timerRef = useRef(null);
+  const startTimeRef = useRef(null);
   const API_KEY = process.env.API_KEY;
   const samUrl =
     process.env.LOCAL_DEV === 'True'
       ? `${BACKEND_URL}:30002`
       : `${BACKEND_URL_PROD}`;
+
 
   const processErrorCallback = error => {
     console.error('Porcupine Error:', error);
@@ -99,10 +102,21 @@ const AudioCircle = () => {
   const handleWordDetected = word => {
     console.log('Word detected:', word);
     wordDetected.current = true;
+
+    // Start or reset the timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    startTimeRef.current = Date.now();
+    timerRef.current = true;
   };
 
   const handleSilenceDetected = async message => {
     if (wordDetected.current) {
+      if (timerRef.current) {
+        const timeTosilence = Date.now() - startTimeRef.current;
+        console.log(`Silence detected after ${timeTosilence} ms`);
+      }
       console.log('Silence detected, sending message:', message);
       wordDetected.current = false;
       try {
@@ -124,6 +138,15 @@ const AudioCircle = () => {
             const base64data = reader.result;
             const path = `${RNFS.DocumentDirectoryPath}/audio.mp3`;
             await RNFS.writeFile(path, base64data.split(',')[1], 'base64');
+            // Stop the timer and log the elapsed time
+            console.log(timerRef.current);
+            if (timerRef.current) {
+              clearTimeout(timerRef.current);
+              const elapsedTime = Date.now() - startTimeRef.current;
+              console.log(`Total time: ${elapsedTime} ms`);
+              timerRef.current = null;
+              startTimeRef.current = null;
+            }
             playSound(path, null, () => {
               startRecording();
             });

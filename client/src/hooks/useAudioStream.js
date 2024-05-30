@@ -12,7 +12,7 @@ const useAudioStream = (
   updateTranscriptState,
 ) => {
   const [isRecording, setIsRecording] = useState(false);
-  const silenceRef = useRef(null);
+  const prevVoiceDetectedRef = useRef(false);
   const streamingTranscript = useRef('');
   const ws = useRef(null);
   const {bleManagerEmitter} = useContext(BluetoothContext);
@@ -80,7 +80,6 @@ const useAudioStream = (
   };
 
   const handleWordDetected = transcribedWord => {
-    silenceRef.current = false;
     streamingTranscript.current += ' ' + transcribedWord;
     updateTranscriptState(prev => prev + ' ' + transcribedWord);
     onWordDetected && onWordDetected(transcribedWord);
@@ -112,8 +111,6 @@ const useAudioStream = (
       const transcribedWord = dataObj?.channel?.alternatives?.[0]?.transcript;
       if (transcribedWord) {
         handleWordDetected(transcribedWord);
-      } else {
-        handleSilenceDetected();
       }
     };
   };
@@ -131,6 +128,7 @@ const useAudioStream = (
     LiveAudioStream.on('data', base64String => {
       const binaryString = base64.decode(base64String);
       const bytes = new Uint8Array(binaryString.length);
+
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
       }
@@ -139,16 +137,35 @@ const useAudioStream = (
       audioBuffer = audioBuffer.concat(Array.from(int16Array));
       while (audioBuffer.length >= 512) {
         const frame = audioBuffer.splice(0, 512);
-        audioBuffer = audioBuffer.slice(512);
-        CobraVadModule.processAudioData(frame);
+        CobraVadModule.processAudioData(frame, (error, voiceDetected) => {
+          if (error) {
+            console.error(error);
+          } else {
+            // Check for transition from voice detected to silence detected
+            console.log('Voice detected:', voiceDetected);
+            if (prevVoiceDetectedRef.current && !voiceDetected) {
+              console.log('Silence detected after voice');
+              handleSilenceDetected();
+              // Process the transcript stored in the ref
+              const transcript = streamingTranscript.current;
+              if (transcript) {
+                // Process the transcript here
+                console.log('Processing transcript:', transcript);
+                // Clear the transcript after processing
+                streamingTranscript.current = '';
+              }
+            }
+            prevVoiceDetectedRef.current = voiceDetected;
+          }
+        });
       }
 
+      // Send the raw audio data to the API continuously
       onAudioData(bytes);
     });
 
     setIsRecording(true);
   };
-
   const startBluetoothStreaming = peripheralId => {
     BleManager.startNotification(
       peripheralId,
@@ -164,8 +181,8 @@ const useAudioStream = (
       });
   };
 
+  // Add listener for Bluetooth data updates
   useEffect(() => {
-    // Add listener for Bluetooth data updates
     bleManagerEmitter.addListener(
       'BleManagerDidUpdateValueForCharacteristic',
       handleUpdateValueForCharacteristic,
@@ -186,7 +203,6 @@ const useAudioStream = (
     initWebSocket,
     stopRecording,
     startRecording,
-    startPhoneStreaming,
   };
 };
 export default useAudioStream;

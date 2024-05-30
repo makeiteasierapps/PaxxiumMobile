@@ -28,18 +28,20 @@ class CobraVadModule: NSObject {
     static func requiresMainQueueSetup() -> Bool {
         return true
     }
+
     @objc
-    func processAudioData(_ audioData: [Int16]) {
+    func processAudioData(_ audioData: [Int16], callback: @escaping RCTResponseSenderBlock) {
         do {
-            guard let handle = self.handle else { return }
-            let voiceProbability = try handle.process(pcm: audioData)
-            if voiceProbability > self.threshold {
-                print("Voice detected")
-            } else {
-                print("No voice detected")
+            guard let handle = self.handle else { 
+                callback([NSNull(), false])
+                return 
             }
+            let voiceProbability = try handle.process(pcm: audioData)
+            let voiceDetected = voiceProbability > self.threshold
+            callback([NSNull(), voiceDetected])
         } catch {
             print("Error processing audio frame: \(error.localizedDescription)")
+            callback([error.localizedDescription, NSNull()])
         }
     }
 }

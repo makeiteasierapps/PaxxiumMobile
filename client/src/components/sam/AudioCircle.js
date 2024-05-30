@@ -12,7 +12,6 @@ import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
 
 const AudioCircle = () => {
   const [displayText, setDisplayText] = useState('');
-  const wordDetected = useRef(false);
   const porcupineRef = useRef(null);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -99,9 +98,6 @@ const AudioCircle = () => {
   );
 
   const handleWordDetected = word => {
-    console.log('Word detected:', word);
-    wordDetected.current = true;
-
     // Start or reset the timer
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -111,52 +107,50 @@ const AudioCircle = () => {
   };
 
   const handleSilenceDetected = async message => {
-    if (wordDetected.current) {
-      if (timerRef.current) {
-        const timeTosilence = Date.now() - startTimeRef.current;
-        console.log(`Silence detected after ${timeTosilence} ms`);
-      }
-      console.log('Silence detected, sending message:', message);
-      wordDetected.current = false;
-      try {
-        const response = await fetch(`${samUrl}/sam`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': API_KEY,
-          },
-          body: JSON.stringify({newMessage: message}),
-        });
+    if (timerRef.current) {
+      const timeTosilence = Date.now() - startTimeRef.current;
+      console.log(`Silence detected after ${timeTosilence} ms`);
+    }
 
-        if (response.ok) {
-          setDisplayText('');
-          stopRecording();
-          const blob = await response.blob();
-          const reader = new FileReader();
-          reader.onloadend = async () => {
-            const base64data = reader.result;
-            const path = `${RNFS.DocumentDirectoryPath}/audio.mp3`;
-            await RNFS.writeFile(path, base64data.split(',')[1], 'base64');
-            // Stop the timer and log the elapsed time
-            console.log(timerRef.current);
-            if (timerRef.current) {
-              clearTimeout(timerRef.current);
-              const elapsedTime = Date.now() - startTimeRef.current;
-              console.log(`Total time: ${elapsedTime} ms`);
-              timerRef.current = null;
-              startTimeRef.current = null;
-            }
-            playSound(path, null, () => {
-              startRecording();
-            });
-          };
-          reader.readAsDataURL(blob);
-        } else {
-          throw new Error('Network response was not ok.');
-        }
-      } catch (error) {
-        console.error('Error fetching moments:', error);
+    console.log('Silence detected, sending message:', message);
+    try {
+      const response = await fetch(`${samUrl}/sam`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': API_KEY,
+        },
+        body: JSON.stringify({newMessage: message}),
+      });
+
+      if (response.ok) {
+        setDisplayText('');
+        stopRecording();
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const base64data = reader.result;
+          const path = `${RNFS.DocumentDirectoryPath}/audio.mp3`;
+          await RNFS.writeFile(path, base64data.split(',')[1], 'base64');
+          // Stop the timer and log the elapsed time
+          console.log(timerRef.current);
+          if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            const elapsedTime = Date.now() - startTimeRef.current;
+            console.log(`Total time: ${elapsedTime} ms`);
+            timerRef.current = null;
+            startTimeRef.current = null;
+          }
+          playSound(path, null, () => {
+            startRecording();
+          });
+        };
+        reader.readAsDataURL(blob);
+      } else {
+        throw new Error('Network response was not ok.');
       }
+    } catch (error) {
+      console.error('Error fetching moments:', error);
     }
   };
 

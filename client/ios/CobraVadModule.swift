@@ -14,7 +14,11 @@ class CobraVadModule: NSObject {
     override init() {
         super.init()
         do {
-            handle = try Cobra(accessKey: "") // Initialize the handle with your access key
+            if let accessKey = ProcessInfo.processInfo.environment["PICO_ACCESS_KEY"] {
+                handle = try Cobra(accessKey: accessKey) // Initialize the handle with your access key
+            } else {
+                print("COBRA_ACCESS_KEY not set in environment variables")
+            }
         } catch {
             print("Error initializing Cobra handle: \(error.localizedDescription)")
         }

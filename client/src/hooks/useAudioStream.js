@@ -19,6 +19,8 @@ const useAudioStream = (
   const serviceUUID = '19B10000-E8F2-537E-4F6C-D104768A1214';
   const audioCharacteristicUUID = '19B10001-E8F2-537E-4F6C-D104768A1214';
   const {CobraVadModule} = NativeModules;
+
+  let audioBuffer = [];
   // This is the function responsible for handling the data received from the Bluetooth device
   const handleUpdateValueForCharacteristic = data => {
     const array = new Uint8Array(data.value);
@@ -70,7 +72,6 @@ const useAudioStream = (
         console.error('Stop notification error', error);
       }
     }
-    CobraVadModule.stopListening();
   };
 
   const handleSilenceDetected = () => {
@@ -99,12 +100,10 @@ const useAudioStream = (
       console.log('WebSocket connection opened');
       if (peripheralId) {
         startBluetoothStreaming(peripheralId);
-        CobraVadModule.startListening();
       } else {
         startPhoneStreaming(audioData => {
           ws.current.send(audioData);
         });
-        CobraVadModule.startListening();
       }
     };
 
@@ -134,6 +133,14 @@ const useAudioStream = (
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const int16Array = new Int16Array(bytes.buffer);
+      audioBuffer = audioBuffer.concat(Array.from(int16Array));
+      while (audioBuffer.length >= 512) {
+        const frame = audioBuffer.splice(0, 512);
+        audioBuffer = audioBuffer.slice(512);
+        CobraVadModule.processAudioData(frame);
       }
 
       onAudioData(bytes);

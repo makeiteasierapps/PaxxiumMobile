@@ -2,6 +2,7 @@
 
 @interface RCT_EXTERN_MODULE(CobraVadModule, NSObject)
 
-RCT_EXTERN_METHOD(processAudioData:(NSArray<NSNumber *> *)audioData)
+RCT_EXTERN_METHOD(processAudioData:(NSArray<NSNumber *> *)audioData
+                  callback:(RCTResponseSenderBlock)callback)
 
 @end

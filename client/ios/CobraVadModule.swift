@@ -21,26 +21,31 @@ class CobraVadModule: NSObject {
     }
 
     @objc
-    func startListening() {
-        audioEngine = AVAudioEngine()
-        inputNode = audioEngine?.inputNode
-        guard let inputNode = inputNode else { return }
+    static func requiresMainQueueSetup() -> Bool {
+        return true
+    }
 
-        let format = inputNode.inputFormat(forBus: bus)
-        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(frameLength))!
+    @objc
+    func startListening() {
+        self.audioEngine = AVAudioEngine()
+        self.inputNode = self.audioEngine?.inputNode
+        guard let inputNode = self.inputNode else { return }
+
+        let format = inputNode.inputFormat(forBus: self.bus)
+        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(self.frameLength))!
 
         var audioFrame: [Int16] = []
 
-        inputNode.installTap(onBus: bus, bufferSize: AVAudioFrameCount(frameLength), format: format) { (buffer, time) in
+        inputNode.installTap(onBus: self.bus, bufferSize: AVAudioFrameCount(self.frameLength), format: format) { (buffer, time) in
             let channelData = buffer.int16ChannelData![0]
             for i in 0..<Int(buffer.frameLength) {
                 audioFrame.append(channelData[i])
             }
         }
 
-        audioEngine?.prepare()
+        self.audioEngine?.prepare()
         do {
-            try audioEngine?.start()
+            try self.audioEngine?.start()
         } catch {
             print("Error starting audio engine: \(error.localizedDescription)")
             return
@@ -50,7 +55,7 @@ class CobraVadModule: NSObject {
             while true {
                 do {
                     guard let handle = self.handle else { return }
-                  let voiceProbability = try handle.process(pcm: audioFrame)
+                    let voiceProbability = try handle.process(pcm: audioFrame)
                     if voiceProbability > self.threshold {
                         print("Voice detected")
                     } else {

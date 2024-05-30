@@ -50,6 +50,13 @@
             ReferencedContainer = "container:Friend.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "PICO_ACCESS_KEY"
+            value = "BO4dMjPC6dMvwW9b8/bOCQj8yvhKpaG6Pi9hP0sNn39AN13mp4yiBw=="
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

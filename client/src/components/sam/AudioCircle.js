@@ -22,7 +22,6 @@ const AudioCircle = () => {
       ? `${BACKEND_URL}:30002`
       : `${BACKEND_URL_PROD}`;
 
-
   const processErrorCallback = error => {
     console.error('Porcupine Error:', error);
   };
@@ -91,9 +90,9 @@ const AudioCircle = () => {
         if (porcupineRef.current) {
           porcupineRef.current.stop().then(() => {
             porcupineRef.current.delete();
-            stopRecording();
           });
         }
+        stopRecording();
         Sound.setCategory('Ambient'); // Reset the category when the component loses focus
       };
     }, []),

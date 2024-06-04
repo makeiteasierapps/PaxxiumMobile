@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import BleManager, {
   BleScanCallbackType,
   BleScanMatchMode,
@@ -10,7 +10,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-
+import {useWebSocket} from '../contexts/WebSocketContext';
 const SERVICE_UUIDS = ['19B10000-E8F2-537E-4F6C-D104768A1214'];
 const serviceUUID = '19B10000-E8F2-537E-4F6C-D104768A1214';
 const SECONDS_TO_SCAN_FOR = 3;
@@ -22,14 +22,17 @@ const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 export const useBluetoothManager = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [peripherals, setPeripherals] = useState(new Map());
+  const {ws} = useWebSocket();
+  const listeners = useRef([]);
 
   useEffect(() => {
     // Permissions and initializations
     handlePermissionsAndStart();
-    return () => {
-      // Cleanup
-      listeners.forEach(listener => listener.remove());
-    };
+    // return () => {
+    //   // Cleanup
+    //   console.log('Cleaning up bluetooth manager');
+    //   listeners.current.forEach(listener => listener.remove());
+    // };
   }, []);
 
   const handlePermissionsAndStart = async () => {
@@ -66,7 +69,11 @@ export const useBluetoothManager = () => {
   };
 
   const setupListeners = () => {
-    const listeners = [
+    listeners.current = [
+      bleManagerEmitter.addListener(
+        'BleManagerDidUpdateValueForCharacteristic',
+        handleUpdateValueForCharacteristic,
+      ),
       bleManagerEmitter.addListener(
         'BleManagerDiscoverPeripheral',
         handleDiscoverPeripheral,
@@ -83,6 +90,14 @@ export const useBluetoothManager = () => {
         handleConnectPeripheral,
       ),
     ];
+  };
+
+  // This is the function responsible for handling the data received from the Bluetooth device
+  const handleUpdateValueForCharacteristic = data => {
+    const array = new Uint8Array(data.value);
+    // for some reason the firmware sends 3 bytes of garbage data at the beginning
+    const modifiedArray = array.slice(3);
+    ws.current.send(modifiedArray.buffer);
   };
 
   const startScan = () => {
@@ -269,6 +284,5 @@ export const useBluetoothManager = () => {
     peripherals,
     startScan,
     togglePeripheralConnection,
-    bleManagerEmitter,
   };
 };

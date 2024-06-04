@@ -12,6 +12,7 @@ import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
 
 const AudioCircle = () => {
   const [displayText, setDisplayText] = useState('');
+  const [streamingTranscript, setStreamingTranscript] = useState('');
   const porcupineRef = useRef(null);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -27,7 +28,7 @@ const AudioCircle = () => {
 
   const playSound = (filePath, basePath = Sound.MAIN_BUNDLE, onComplete) => {
     console.log('Initializing sound playback');
-    Sound.setCategory('Playback');
+    Sound.setCategory('Playback', true);
     const sound = new Sound(filePath, basePath, error => {
       if (error) {
         console.error('Failed to load the sound', error);
@@ -53,10 +54,11 @@ const AudioCircle = () => {
     if (porcupineRef.current && keywordIndex >= 0) {
       try {
         playSound('greeting1Nova.mp3', Sound.MAIN_BUNDLE, () => {
-          startRecording();
           porcupineRef.current.stop().then(() => {
+            console.log('Cleaning up porcupine');
             porcupineRef.current.delete();
           });
+          startRecording();
         });
       } catch (e) {
         console.error('Error processing audio frame', e);
@@ -85,7 +87,6 @@ const AudioCircle = () => {
       initPorcupine();
 
       return () => {
-        console.log('Component lost focus, cleaning up');
         if (porcupineRef.current) {
           porcupineRef.current.stop().then(() => {
             porcupineRef.current.delete();
@@ -106,6 +107,12 @@ const AudioCircle = () => {
     timerRef.current = true;
   };
 
+  useEffect(() => {
+    if (streamingTranscript) {
+      handleSilenceDetected(streamingTranscript);
+    }
+  }, [streamingTranscript]);
+
   const handleSilenceDetected = async message => {
     if (timerRef.current) {
       const timeTosilence = Date.now() - startTimeRef.current;
@@ -113,6 +120,7 @@ const AudioCircle = () => {
     }
 
     console.log('Silence detected, sending message:', message);
+
     try {
       const response = await fetch(`${samUrl}/sam`, {
         method: 'POST',
@@ -124,7 +132,7 @@ const AudioCircle = () => {
       });
 
       if (response.ok) {
-        setDisplayText('');
+        setStreamingTranscript('');
         stopRecording();
         const blob = await response.blob();
         const reader = new FileReader();
@@ -157,7 +165,7 @@ const AudioCircle = () => {
   const {startRecording, stopRecording} = useAudioStream(
     handleWordDetected,
     handleSilenceDetected,
-    setDisplayText,
+    setStreamingTranscript,
   );
 
   return (

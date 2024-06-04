@@ -13,7 +13,7 @@ const MomentsTab = () => {
   const [displayTranscript, setDisplayTranscript] = useState('');
   const {moments, createOrUpdateMoment} = useContext(MomentsContext);
   const tokenCount = useRef(0);
-  
+
   const countTokens = text => {
     const token_count = Array.from(jsTokens(text)).length;
     return token_count;

@@ -1,20 +1,14 @@
-import {useState, useRef, useCallback} from 'react';
-import {useFocusEffect} from '@react-navigation/native';
+import {useState, useRef, useContext} from 'react';
 import {NativeModules} from 'react-native';
-import {useWebSocket} from '../contexts/WebSocketContext';
+import {WebSocketContext} from '../contexts/WebSocketContext';
 import LiveAudioStream from 'react-native-live-audio-stream';
 import base64 from 'react-native-base64';
 import BleManager from 'react-native-ble-manager';
 
-const useAudioStream = (
-  onWordDetected,
-  onSilenceDetected,
-  updateTranscriptState,
-) => {
+const useAudioStream = (onWordDetected, onSilenceDetected, setTranscript) => {
   const [isRecording, setIsRecording] = useState(false);
   const prevVoiceDetectedRef = useRef(false);
-  const [streamingTranscript, setStreamingTranscript] = useState('');
-  const {ws, initWebSocket} = useWebSocket();
+  const {ws, initWebSocket} = useContext(WebSocketContext);
   const serviceUUID = '19B10000-E8F2-537E-4F6C-D104768A1214';
   const audioCharacteristicUUID = '19B10001-E8F2-537E-4F6C-D104768A1214';
   const {CobraVadModule} = NativeModules;
@@ -29,10 +23,19 @@ const useAudioStream = (
       ]);
       if (connectedPeripherals.length > 0) {
         console.log('Connected device found, streaming from it');
-        initWebSocket(connectedPeripherals[0].id);
+        await initWebSocket({
+          peripheralId: connectedPeripherals[0].id,
+          startBluetoothStreaming,
+          startPhoneStreaming,
+          handleWordDetected,
+        });
       } else {
         console.log('No connected device, streaming from phone');
-        initWebSocket();
+        await initWebSocket({
+          startBluetoothStreaming,
+          startPhoneStreaming,
+          handleWordDetected,
+        });
       }
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -49,7 +52,7 @@ const useAudioStream = (
         console.log('WebSocket connection closed');
       }
       setIsRecording(false);
-      setStreamingTranscript('');
+      setTranscript('');
 
       const connectedPeripherals = await BleManager.getConnectedPeripherals([
         serviceUUID,
@@ -71,16 +74,15 @@ const useAudioStream = (
     }
   };
 
-  const handleSilenceDetected = () => {
+  const handleSilenceDetected = userMessage => {
     console.log('Silence detected');
-    onSilenceDetected && onSilenceDetected(streamingTranscript);
-    setStreamingTranscript('');
+    onSilenceDetected && onSilenceDetected(userMessage);
+    setTranscript('');
   };
 
   const handleWordDetected = transcribedWord => {
     console.log('Word detected:', transcribedWord);
-    setStreamingTranscript(prev => prev + ' ' + transcribedWord);
-    updateTranscriptState(prev => prev + ' ' + transcribedWord);
+    setTranscript(prev => prev + ' ' + transcribedWord);
     onWordDetected && onWordDetected(transcribedWord);
   };
 
@@ -150,18 +152,6 @@ const useAudioStream = (
       console.error('Error starting Bluetooth streaming:', error);
     }
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      console.log('useAudioStream focused');
-      return () => {
-        console.log('useAudioStream unfocused, cleaning up');
-        if (ws.current) {
-          ws.current.close();
-        }
-      };
-    }, []),
-  );
 
   return {
     isRecording,

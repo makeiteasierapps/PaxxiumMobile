@@ -53,17 +53,29 @@ const AudioCircle = () => {
   const detectionCallback = async keywordIndex => {
     if (porcupineRef.current && keywordIndex >= 0) {
       try {
-        playSound('greeting1Nova.mp3', Sound.MAIN_BUNDLE, () => {
-          porcupineRef.current.stop().then(() => {
-            console.log('Cleaning up porcupine');
-            porcupineRef.current.delete();
-          });
-          startRecording();
-        });
-      } catch (e) {
-        console.error('Error processing audio frame', e);
+        await playGreetingAndCleanup();
+        startRecording();
+      } catch (error) {
+        console.error('Error during detection callback:', error);
       }
     }
+  };
+
+  const playGreetingAndCleanup = async () => {
+    return new Promise((resolve, reject) => {
+      playSound('greeting1Nova.mp3', Sound.MAIN_BUNDLE, async () => {
+        try {
+          await porcupineRef.current.stop();
+          console.log('Cleaning up porcupine');
+          await porcupineRef.current.delete();
+          console.log('Porcupine cleanup complete');
+          resolve();
+        } catch (error) {
+          console.error('Error during porcupine cleanup:', error);
+          reject(error);
+        }
+      });
+    });
   };
 
   const initPorcupine = async () => {

@@ -1,4 +1,4 @@
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useContext} from 'react';
 import BleManager, {
   BleScanCallbackType,
   BleScanMatchMode,
@@ -10,7 +10,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import {useWebSocket} from '../contexts/WebSocketContext';
+import {WebSocketContext} from '../contexts/WebSocketContext';
 const SERVICE_UUIDS = ['19B10000-E8F2-537E-4F6C-D104768A1214'];
 const serviceUUID = '19B10000-E8F2-537E-4F6C-D104768A1214';
 const SECONDS_TO_SCAN_FOR = 3;
@@ -22,7 +22,7 @@ const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 export const useBluetoothManager = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [peripherals, setPeripherals] = useState(new Map());
-  const {ws} = useWebSocket();
+  const {ws} = useContext(WebSocketContext);
   const listeners = useRef([]);
 
   useEffect(() => {

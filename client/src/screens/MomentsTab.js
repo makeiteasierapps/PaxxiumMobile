@@ -10,6 +10,7 @@ import MomentListItem from '../components/moments/MomentsListItem';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 const MomentsTab = () => {
+  const streamingTranscript = useRef('');
   const [displayTranscript, setDisplayTranscript] = useState('');
   const {moments, createOrUpdateMoment} = useContext(MomentsContext);
   const tokenCount = useRef(0);
@@ -27,7 +28,7 @@ const MomentsTab = () => {
     const tokens = countTokens(transcribedWord);
     tokenCount.current += tokens;
     streamingTranscript.current += ' ' + transcribedWord;
-    setTranscript(prev => prev + ' ' + transcribedWord);
+    setDisplayTranscript(prev => prev + ' ' + transcribedWord);
 
     if (tokenCount.current >= 500) {
       console.log('Token count reached', tokenCount.current);
@@ -50,10 +51,6 @@ const MomentsTab = () => {
     scrollViewRef.current?.scrollToEnd({animated: true});
   }, [displayTranscript]);
 
-  const handleStopRecording = async () => {
-    stopRecording();
-  };
-
   const handlePress = momentId => {
     navigation.navigate('Moment Details', {momentId});
   };
@@ -63,7 +60,7 @@ const MomentsTab = () => {
       <SafeAreaView style={styles.container}>
         <Button
           title={isRecording ? 'Stop' : 'Record'}
-          onPress={isRecording ? handleStopRecording : startRecording}
+          onPress={isRecording ? stopRecording : startRecording}
           buttonStyle={styles.recordButton}
         />
         <ScrollView ref={scrollViewRef} style={styles.transcriptContainer}>

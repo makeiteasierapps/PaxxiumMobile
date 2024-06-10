@@ -75,7 +75,9 @@ const useAudioStream = (onWordDetected, onSilenceDetected, setTranscript) => {
   };
 
   const handleSilenceDetected = userMessage => {
-    console.log('Silence detected');
+    if (!userMessage) {
+      return;
+    }
     onSilenceDetected && onSilenceDetected(userMessage);
     setTranscript('');
   };
@@ -114,7 +116,6 @@ const useAudioStream = (onWordDetected, onSilenceDetected, setTranscript) => {
             if (error) {
               console.error('CobraVadModule error:', error);
             } else {
-              console.log('Voice detected:', voiceDetected);
               if (prevVoiceDetectedRef.current && !voiceDetected) {
                 console.log('Silence detected after voice');
                 handleSilenceDetected();

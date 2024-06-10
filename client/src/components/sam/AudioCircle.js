@@ -127,7 +127,8 @@ const AudioCircle = () => {
   }, [streamingTranscript]);
 
   const handleSilenceDetected = async message => {
-
+    stopRecording();
+    
     if (timerRef.current) {
       const timeTosilence = Date.now() - startTimeRef.current;
       console.log(`Silence detected after ${timeTosilence} ms`);
@@ -147,7 +148,7 @@ const AudioCircle = () => {
 
       if (response.ok) {
         setStreamingTranscript('');
-        stopRecording();
+
         const blob = await response.blob();
         const reader = new FileReader();
         reader.onloadend = async () => {
@@ -169,6 +170,7 @@ const AudioCircle = () => {
         };
         reader.readAsDataURL(blob);
       } else {
+        startRecording(); // Add a voice response saying there was an error
         throw new Error('Network response was not ok.');
       }
     } catch (error) {

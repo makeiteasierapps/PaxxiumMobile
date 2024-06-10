@@ -28,7 +28,7 @@ def check_api_key(request):
 
 def handle_new_message(request):
     new_message = request.json['newMessage']
-    boss_agent = BossAgent()
+    boss_agent = BossAgent(model='gpt-4o')
     get_text_response = boss_agent.get_full_response(new_message)
     boss_agent.stream_audio_response(get_text_response)
     return send_file('audio.mp3', mimetype='audio/mpeg')

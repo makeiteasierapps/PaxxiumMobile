@@ -108,6 +108,10 @@ const useAudioStream = (onWordDetected, onSilenceDetected, setTranscript) => {
           bytes[i] = binaryString.charCodeAt(i);
         }
 
+        // This is specific to SAM, extract the logic and then conditionally run it
+        // depending on if Moments is using the streaming or if SAM is. I dont need to 
+        // detect silence. I want to start and stop Moments with the button press. So when
+        // Stop recording is triggered the transcribed message will then be added as a new moment.
         const int16Array = new Int16Array(bytes.buffer);
         audioBuffer = audioBuffer.concat(Array.from(int16Array));
         while (audioBuffer.length >= 512) {

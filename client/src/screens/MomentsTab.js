@@ -28,7 +28,6 @@ const MomentsTab = () => {
     const tokens = countTokens(transcribedWord);
     tokenCount.current += tokens;
     streamingTranscript.current += ' ' + transcribedWord;
-    setDisplayTranscript(prev => prev + ' ' + transcribedWord);
 
     if (tokenCount.current >= 500) {
       console.log('Token count reached', tokenCount.current);
@@ -55,12 +54,21 @@ const MomentsTab = () => {
     navigation.navigate('Moment Details', {momentId});
   };
 
+  const handleRecordPress = () => {
+    if (isRecording) {
+      createOrUpdateMoment(displayTranscript);
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <SafeAreaView style={styles.container}>
         <Button
           title={isRecording ? 'Stop' : 'Record'}
-          onPress={isRecording ? stopRecording : startRecording}
+          onPress={handleRecordPress}
           buttonStyle={styles.recordButton}
         />
         <ScrollView ref={scrollViewRef} style={styles.transcriptContainer}>

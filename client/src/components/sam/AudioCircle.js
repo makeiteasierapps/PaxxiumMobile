@@ -62,19 +62,19 @@ const AudioCircle = () => {
   };
 
   const playGreetingAndCleanup = async () => {
-    return new Promise((resolve, reject) => {
-      playSound('greeting1Nova.mp3', Sound.MAIN_BUNDLE, async () => {
-        try {
-          await porcupineRef.current.stop();
-          console.log('Cleaning up porcupine');
-          await porcupineRef.current.delete();
-          console.log('Porcupine cleanup complete');
+    return new Promise(async (resolve, reject) => {
+      try {
+        await porcupineRef.current.stop();
+        console.log('Stopping porcupine');
+        await porcupineRef.current.delete();
+        console.log('Porcupine cleanup complete');
+        playSound('greeting1Nova.mp3', Sound.MAIN_BUNDLE, () => {
           resolve();
-        } catch (error) {
-          console.error('Error during porcupine cleanup:', error);
-          reject(error);
-        }
-      });
+        });
+      } catch (error) {
+        console.error('Error during porcupine cleanup:', error);
+        reject(error);
+      }
     });
   };
 
@@ -96,6 +96,7 @@ const AudioCircle = () => {
   useFocusEffect(
     useCallback(() => {
       console.log('Component focused, initializing Porcupine');
+      console.log(samUrl);
       initPorcupine();
 
       return () => {
@@ -126,6 +127,7 @@ const AudioCircle = () => {
   }, [streamingTranscript]);
 
   const handleSilenceDetected = async message => {
+
     if (timerRef.current) {
       const timeTosilence = Date.now() - startTimeRef.current;
       console.log(`Silence detected after ${timeTosilence} ms`);
@@ -170,7 +172,7 @@ const AudioCircle = () => {
         throw new Error('Network response was not ok.');
       }
     } catch (error) {
-      console.error('Error fetching moments:', error);
+      console.error('Error sending message:', error);
     }
   };
 

@@ -135,9 +135,11 @@ export const useChatManager = () => {
         'X-API-Key': API_KEY,
       },
       body: JSON.stringify({
-        chatId,
-        userMessage,
-        chatHistory,
+        chatId: chatId,
+        chatHistory: chatHistory,
+        userMessage: userMessage,
+        saveToDb: true,
+        createVectorPipeline: true,
       }),
     });
 

@@ -17,7 +17,7 @@ def cors_preflight_response():
     cors_headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS, DELETE, PUT, PATCH",
-        "Access-Control-Allow-Headers": "Authorization, Content-Type, Project-ID",
+        "Access-Control-Allow-Headers": "Authorization, Content-Type, Project-ID, X-API-Key",
         "Access-Control-Max-Age": "3600",
     }
     return ("", 204, cors_headers)
@@ -51,17 +51,19 @@ def handle_delete_chat(request):
 
 def handle_post_message(request):
     data = request.json
+    save_to_db = data.get('saveToDb', True)
+    create_vector_pipeline = data.get('createVectorPipeline', True)
     boss_agent = BossAgent()
     chat_service = ChatService()
     message_content = data['userMessage']['content']
-    query_pipeline = boss_agent.create_vector_pipeline(message_content)
-    results = chat_service.query_snapshots(query_pipeline)
-    processed_response = boss_agent.prepare_vector_response(results)
-    chat_service.create_message(data['chatId'], 'user', message_content)
 
+    if create_vector_pipeline:
+        query_pipeline = boss_agent.create_vector_pipeline(message_content)
+        results = chat_service.query_snapshots(query_pipeline)
+        system_message = boss_agent.prepare_vector_response(results)
+    
     complete_message = ''
-    response_generator = boss_agent.process_message(data['chatId'], data['userMessage'], data['chatHistory'], processed_response)
-
+    response_generator = boss_agent.process_message(data['chatId'], data['chatHistory'], message_content)
 
     # Create a generator to handle streaming and compile the complete message
     def compile_and_stream():
@@ -72,8 +74,12 @@ def handle_post_message(request):
 
     # Stream responses to client
     response = Response(compile_and_stream(), mimetype='application/json')
-    # After streaming, store the complete message
-    response.call_on_close(lambda: chat_service.create_message(data['chatId'], 'agent', complete_message))
+    
+    # After streaming, store the complete message if save_to_db is True
+    if save_to_db:
+        chat_service.create_message(data['chatId'], 'user', message_content)
+        response.call_on_close(lambda: chat_service.create_message(data['chatId'], 'agent', complete_message))
+    
     return response
 
 def chat(request):

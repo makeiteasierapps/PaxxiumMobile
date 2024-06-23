@@ -136,10 +136,10 @@ export const useChatManager = () => {
       },
       body: JSON.stringify({
         chatId: chatId,
+        saveToDb: false,
+        dbName: 'friend',
         chatHistory: chatHistory,
         userMessage: userMessage,
-        saveToDb: true,
-        createVectorPipeline: true,
       }),
     });
 

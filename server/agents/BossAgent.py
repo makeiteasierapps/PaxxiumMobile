@@ -120,12 +120,8 @@ class BossAgent:
         )
         return response.data[0].embedding
     
-    def pass_to_boss_agent(self, message_obj):
-        new_user_message = message_obj['user_message']
-        chat_history = message_obj['chat_history']
-
-        new_chat_history = self.manage_chat(chat_history, new_user_message)
-
+    def pass_to_boss_agent(self, new_chat_history):
+    
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=new_chat_history,
@@ -201,12 +197,13 @@ class BossAgent:
         
         return new_name
     
-    def process_message(self, chat_id, chat_history, processed_message):
-        message_obj = {
-            'user_message': processed_message,
-            'chat_history': chat_history,
-        }
-        for response_chunk in self.pass_to_boss_agent(message_obj):
+    def process_message(self, chat_id, chat_history, user_message, system_message=None):
+    
+        new_chat_history = self.manage_chat(chat_history, user_message)
+        if system_message:
+            new_chat_history.insert(0, system_message)
+        
+        for response_chunk in self.pass_to_boss_agent(new_chat_history):
             response_chunk['chat_id'] = chat_id
             yield response_chunk
 
@@ -215,10 +212,13 @@ class BossAgent:
 
         for item in query_results:
             if item['score'] > 0.2:
-                action_items = ', '.join(item['actionItems'])
-                text.append(item['transcript'])
-                text.append(action_items)
-
+                if 'transcript' in item:
+                    text.append(item['transcript'])
+                if 'actionItems' in item:
+                    action_items = ', '.join(item['actionItems'])
+                    text.append(action_items)
+                if 'text' in item:
+                    text.append(item['text'])
         combined_text = ' '.join(text)
         query_instructions = f'''
         \nAnswer the users question based off of the knowledge base provided below, provide 
@@ -231,25 +231,26 @@ class BossAgent:
         }
         return system_message
     
-    def create_vector_pipeline(self, query):
+    def create_vector_pipeline(self, query, project_id):
         embeddings = self.embed_content(query)
         pipeline = [
             {
                 '$vectorSearch': {
-                    'index': 'snapshot_index',
-                    'path': 'embeddings',
+                    'index': 'personal-kb',
+                    'path': 'values',
                     'queryVector': embeddings,
                     'numCandidates': 100,
                     'limit': 5,
-                    # 'filter': {
-                    #     'project_id': project_id
-                    # }
+                    'filter': {
+                        'project_id': project_id
+                    }
                 }
             }, {
                 '$project': {
                     '_id': 0,
                     'transcript': 1,
                     'actionItems': 1,
+                    'text': 1,
                     'score': {
                         '$meta': 'vectorSearchScore'
                     }

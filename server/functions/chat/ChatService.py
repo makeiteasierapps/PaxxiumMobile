@@ -12,7 +12,7 @@ class ChatService:
             cls._instance = super(ChatService, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, mongo_uri=None, db_name='friend'):
+    def __init__(self, db_name, mongo_uri=None):
         if not hasattr(self, 'is_initialized'):
             self.is_initialized = True
             self.mongo_uri = mongo_uri or self._load_mongo_uri()
@@ -127,9 +127,10 @@ class ChatService:
             print("MongoDB connection is not initialized.")
     
     def query_snapshots(self, pipeline):
+        # need to pass in the collection name
         self._initialize_client()
         if self.db is not None:
-            return list(self.db["snapshots"].aggregate(pipeline))
+            return list(self.db["chunks"].aggregate(pipeline))
         else:
             print("MongoDB connection is not initialized.")
             return []

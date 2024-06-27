@@ -60,6 +60,7 @@ def handle_post_message(request):
     if create_vector_pipeline:
         query_pipeline = boss_agent.create_vector_pipeline(user_message, data['projectId'])
         results = chat_service.query_snapshots(query_pipeline)
+        print(results)
         system_message = boss_agent.prepare_vector_response(results)
         
     complete_message = ''

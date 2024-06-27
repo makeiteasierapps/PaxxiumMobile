@@ -248,8 +248,6 @@ class BossAgent:
             }, {
                 '$project': {
                     '_id': 0,
-                    'transcript': 1,
-                    'actionItems': 1,
                     'text': 1,
                     'score': {
                         '$meta': 'vectorSearchScore'

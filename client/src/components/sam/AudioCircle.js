@@ -20,6 +20,7 @@ const AudioCircle = () => {
   const samUrl =
     process.env.LOCAL_DEV === 'True' ? BACKEND_URL : BACKEND_URL_PROD;
 
+  const USER_AGENT = process.env.USER_AGENT;
   const processErrorCallback = error => {
     console.error('Porcupine Error:', error);
   };
@@ -139,7 +140,7 @@ const AudioCircle = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': API_KEY,
+          'User-Agent': USER_AGENT,
         },
         body: JSON.stringify({newMessage: message}),
       });

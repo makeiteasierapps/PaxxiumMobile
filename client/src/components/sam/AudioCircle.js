@@ -18,9 +18,7 @@ const AudioCircle = () => {
   const startTimeRef = useRef(null);
   const API_KEY = process.env.API_KEY;
   const samUrl =
-    process.env.LOCAL_DEV === 'True'
-      ? `${BACKEND_URL}:30002`
-      : `${BACKEND_URL_PROD}`;
+    process.env.LOCAL_DEV === 'True' ? BACKEND_URL : BACKEND_URL_PROD;
 
   const processErrorCallback = error => {
     console.error('Porcupine Error:', error);
@@ -128,7 +126,7 @@ const AudioCircle = () => {
 
   const handleSilenceDetected = async message => {
     stopRecording();
-    
+
     if (timerRef.current) {
       const timeTosilence = Date.now() - startTimeRef.current;
       console.log(`Silence detected after ${timeTosilence} ms`);

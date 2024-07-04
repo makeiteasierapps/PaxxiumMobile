@@ -8,7 +8,7 @@ import {
 } from '@picovoice/porcupine-react-native';
 import RNFS from 'react-native-fs';
 import {useFocusEffect} from '@react-navigation/native';
-import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
+import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV} from '@env';
 
 const AudioCircle = () => {
   const [displayText, setDisplayText] = useState('');
@@ -16,9 +16,8 @@ const AudioCircle = () => {
   const porcupineRef = useRef(null);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
-  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const samUrl =
-    process.env.LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
+
+  const backendUrl = LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
 
   const USER_AGENT = process.env.USER_AGENT;
   const processErrorCallback = error => {
@@ -95,7 +94,6 @@ const AudioCircle = () => {
   useFocusEffect(
     useCallback(() => {
       console.log('Component focused, initializing Porcupine');
-      console.log(samUrl);
       initPorcupine();
 
       return () => {
@@ -136,7 +134,7 @@ const AudioCircle = () => {
     console.log('Silence detected, sending message:', message);
 
     try {
-      const response = await fetch(`${protocol}://${samUrl}/sam`, {
+      const response = await fetch(`http://${backendUrl}/sam`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

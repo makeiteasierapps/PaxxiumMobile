@@ -12,7 +12,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 const MomentsTab = () => {
   const streamingTranscript = useRef('');
   const [displayTranscript, setDisplayTranscript] = useState('');
-  const {moments, createOrUpdateMoment} = useContext(MomentsContext);
+  const {moments, createOrUpdateMoment, currentMoment} = useContext(MomentsContext);
   const tokenCount = useRef(0);
 
   const countTokens = text => {
@@ -29,8 +29,7 @@ const MomentsTab = () => {
     tokenCount.current += tokens;
     streamingTranscript.current += ' ' + transcribedWord;
 
-    if (tokenCount.current >= 500) {
-      console.log('Token count reached', tokenCount.current);
+    if (tokenCount.current >= 100) {
       createOrUpdateMoment(streamingTranscript.current);
       streamingTranscript.current = '';
       tokenCount.current = 0;
@@ -58,6 +57,7 @@ const MomentsTab = () => {
     if (isRecording) {
       createOrUpdateMoment(displayTranscript);
       stopRecording();
+      currentMoment.current = null;
     } else {
       startRecording();
     }
@@ -78,7 +78,6 @@ const MomentsTab = () => {
           data={moments}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => {
-            console.log('Passing momentId:', item.momentId);
             return (
               <MomentListItem
                 momentId={item.momentId}

@@ -1,20 +1,17 @@
-import {useState, useContext, useEffect} from 'react';
+import {useState, useContext, useEffect, useRef} from 'react';
 import axios from 'axios';
-import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
+import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV} from '@env';
 import {SnackbarContext} from '../contexts/SnackbarContext';
 import {useSecureStorage} from './useSecureStorage';
 
 export const useMomentsManager = () => {
   const [moments, setMoments] = useState([]);
-  const [currentMoment, setCurrentMoment] = useState(null);
+  const currentMoment = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const {storeItem, retrieveItem, deleteMoments} = useSecureStorage();
   const {showSnackbar} = useContext(SnackbarContext);
-  const API_KEY = process.env.API_KEY;
-  const momentUrl =
-    process.env.LOCAL_DEV === 'True'
-      ? `${BACKEND_URL}:30001`
-      : `${BACKEND_URL_PROD}`;
+
+  const backendUrl = LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
 
   const userAgent = process.env.USER_AGENT;
 
@@ -29,13 +26,13 @@ export const useMomentsManager = () => {
 
     if (!momentsData || momentsData.length === 0) {
       try {
-        const response = await axios.get(`${momentUrl}/moments`, {
+        const response = await axios.get(`http://${backendUrl}/moments`, {
           headers: {
             'User-Agent': userAgent,
           },
         });
         if (response.status === 200 && response.data) {
-          momentsData = response.data.moments;
+          momentsData = response.data;
           await storeItem('moments', momentsData);
         }
       } catch (error) {
@@ -51,7 +48,7 @@ export const useMomentsManager = () => {
   const addMoment = async moment => {
     try {
       const response = await axios.post(
-        `${momentUrl}/moments`,
+        `http://${backendUrl}/moments`,
         {
           newMoment: moment,
         },
@@ -63,10 +60,10 @@ export const useMomentsManager = () => {
       );
       if (response.status === 200 && response.data) {
         const updatedMoments = (await retrieveItem('moments')) || [];
-        updatedMoments.push(response.data.moment);
+        updatedMoments.push(response.data);
         await storeItem('moments', updatedMoments);
         setMoments(updatedMoments);
-        return response.data.moment.momentId;
+        return response.data.momentId;
       }
     } catch (error) {
       console.error('Error adding moment:', error);
@@ -77,7 +74,7 @@ export const useMomentsManager = () => {
   const updateMoment = async moment => {
     try {
       const response = await axios.put(
-        `${momentUrl}/moments`,
+        `http://${backendUrl}/moments`,
         {
           moment,
         },
@@ -92,7 +89,7 @@ export const useMomentsManager = () => {
         const index = updatedMoments.findIndex(
           item => item.momentId === moment.momentId,
         );
-        updatedMoments[index] = response.data.moment;
+        updatedMoments[index] = response.data;
         await storeItem('moments', updatedMoments);
         setMoments(updatedMoments);
       }
@@ -104,7 +101,7 @@ export const useMomentsManager = () => {
 
   const deleteMoment = async momentId => {
     try {
-      const response = await axios.delete(`${momentUrl}/moments`, {
+      const response = await axios.delete(`http://${backendUrl}/moments`, {
         data: {id: momentId},
         headers: {
           'User-Agent': userAgent,
@@ -125,16 +122,16 @@ export const useMomentsManager = () => {
   };
 
   const createOrUpdateMoment = async transcript => {
-    if (currentMoment) {
-      console.log('Updating moment:', currentMoment);
+    if (currentMoment.current) {
+      console.log('updating moment');
       try {
-        const momentId = currentMoment.momentId;
+        const momentId = currentMoment.current.momentId;
         await updateMoment({momentId, transcript, date: new Date()});
       } catch (error) {
         console.error('Error updating moment', error);
       }
     } else {
-      console.log('Creating new moment');
+      console.log('creating moment');
       try {
         const newMoment = {
           transcript,
@@ -142,7 +139,7 @@ export const useMomentsManager = () => {
         };
         const newMomentId = await addMoment(newMoment);
         newMoment.momentId = newMomentId;
-        setCurrentMoment(newMoment);
+        currentMoment.current = newMoment;
       } catch (error) {
         console.error('Error creating moment', error);
       }
@@ -157,5 +154,6 @@ export const useMomentsManager = () => {
     updateMoment,
     deleteMoment,
     createOrUpdateMoment,
+    currentMoment,
   };
 };

@@ -22,8 +22,7 @@ export const useSecureStorage = () => {
     try {
       await EncryptedStorage.setItem(item, JSON.stringify(data));
     } catch (error) {
-      console.error('Failed to save users:', error);
-      showSnackbar('Failed to save user data', 'error');
+      console.error(`Failed to save ${item}:`, error);
     }
   };
 
@@ -32,8 +31,7 @@ export const useSecureStorage = () => {
       const jsonItem = await EncryptedStorage.getItem(item);
       return jsonItem ? JSON.parse(jsonItem) : null;
     } catch (error) {
-      console.error('Failed to retrieve users:', error);
-      showSnackbar('Failed to retrieve user data', 'error');
+      console.error(`Failed to retrieve ${item}:`, error);
     }
   };
 

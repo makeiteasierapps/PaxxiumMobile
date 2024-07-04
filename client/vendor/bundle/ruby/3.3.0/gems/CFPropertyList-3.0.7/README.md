@@ -39,7 +39,7 @@ data = {
   'name' => 'John Doe',
   'missing' => true,
   'last_seen' => Time.now,
-  'friends' => ['Jane Doe','Julian Doe'],
+  'Paxxiums' => ['Jane Doe','Julian Doe'],
   'likes' => {
     'me' => false
   }

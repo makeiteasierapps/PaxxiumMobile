@@ -14,7 +14,7 @@ describe 'With a mocked client' do
   end
 
   it "should add a simple object" do
-    index = Algolia::Index.new("friends")
+    index = Algolia::Index.new("Paxxiums")
     index.add_object!({ :name => "John Doe", :email => "john@doe.org" })
     index.search('').should == { "hits" => [ { "objectID" => 42 } ], "page" => 1, "hitsPerPage" => 1, "nbHits"=>1, "nbPages"=>1 } # mocked
     index.list_api_keys

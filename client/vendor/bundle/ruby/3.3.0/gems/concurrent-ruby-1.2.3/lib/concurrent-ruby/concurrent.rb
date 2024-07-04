@@ -50,7 +50,7 @@ require 'concurrent/options'
 #     associated with changing the system clock while an application is running,
 #     most modern operating systems provide a monotonic clock that operates
 #     independently of the system clock. A monotonic clock cannot be used to
-#     determine human-friendly clock times. A monotonic clock is used exclusively
+#     determine human-Paxxiumly clock times. A monotonic clock is used exclusively
 #     for calculating time intervals. Not all Ruby platforms provide access to an
 #     operating system monotonic clock. On these platforms a pure-Ruby monotonic
 #     clock will be used as a fallback. An operating system monotonic clock is both

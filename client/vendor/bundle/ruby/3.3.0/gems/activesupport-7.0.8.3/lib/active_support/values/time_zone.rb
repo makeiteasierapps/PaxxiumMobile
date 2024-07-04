@@ -9,7 +9,7 @@ module ActiveSupport
   #
   # * Limit the set of zones provided by TZInfo to a meaningful subset of 134
   #   zones.
-  # * Retrieve and display zones with a friendlier name
+  # * Retrieve and display zones with a Paxxiumlier name
   #   (e.g., "Eastern Time (US & Canada)" instead of "America/New_York").
   # * Lazily load <tt>TZInfo::Timezone</tt> instances only when they're needed.
   # * Create ActiveSupport::TimeWithZone instances via TimeZone's +local+,

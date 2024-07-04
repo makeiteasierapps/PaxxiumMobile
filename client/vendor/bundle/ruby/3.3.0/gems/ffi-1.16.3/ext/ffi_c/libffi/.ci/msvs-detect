@@ -403,7 +403,7 @@ esac
 # Headers and Libraries which allows this script to detect the rest).
 # Each element is either a Visual Studio or SDK package and the value is the syntax for a bash
 # associative array to be eval'd. Each of these contains the following properties:
-#   NAME           - the friendly name of the package
+#   NAME           - the Paxxiumly name of the package
 #   ENV            - (VS only) the version-specific portion of the VSCOMNTOOLS environment variable
 #   VERSION        - (VS only) version number of the package
 #   ARCH           - Lists the architectures available in this version

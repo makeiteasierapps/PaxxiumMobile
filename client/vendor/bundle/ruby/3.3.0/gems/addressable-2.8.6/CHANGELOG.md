@@ -24,7 +24,7 @@
 [#498]: https://github.com/sporkmonger/addressable/pull/498
 
 # Addressable 2.8.2 <a name="v2.8.2">
-- Improve cache hits and JIT friendliness ([#486](https://github.com/sporkmonger/addressable/pull/486))
+- Improve cache hits and JIT Paxxiumliness ([#486](https://github.com/sporkmonger/addressable/pull/486))
 - Improve code style and test coverage ([#482](https://github.com/sporkmonger/addressable/pull/482))
 - Ensure reset of deferred validation ([#481](https://github.com/sporkmonger/addressable/pull/481))
 - Resolve normalization differences between `IDNA::Native` and `IDNA::Pure` ([#408](https://github.com/sporkmonger/addressable/issues/408), [#492])

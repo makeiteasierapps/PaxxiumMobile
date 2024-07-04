@@ -5,7 +5,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/40ae104586c859d3581e/test_coverage)](https://codeclimate.com/github/CocoaPods/Xcodeproj/test_coverage)
 
 Xcodeproj lets you create and modify Xcode projects from [Ruby][ruby].
-Script boring management tasks or build Xcode-friendly libraries. Also includes
+Script boring management tasks or build Xcode-Paxxiumly libraries. Also includes
 support for Xcode workspaces (`.xcworkspace`), configuration files (`.xcconfig`) and
 Xcode Scheme files (`.xcscheme`).
 

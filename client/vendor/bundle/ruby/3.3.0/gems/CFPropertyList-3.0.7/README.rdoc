@@ -19,7 +19,7 @@ or you could clone this repository and place it somewhere in your load path.
     'name' => 'John Doe',
     'missing' => true,
     'last_seen' => Time.now,
-    'friends' => ['Jane Doe','Julian Doe'],
+    'Paxxiums' => ['Jane Doe','Julian Doe'],
     'likes' => {
       'me' => false
     }

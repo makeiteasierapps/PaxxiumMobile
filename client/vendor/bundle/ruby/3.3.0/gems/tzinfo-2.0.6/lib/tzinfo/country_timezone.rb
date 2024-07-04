@@ -59,9 +59,9 @@ module TZInfo
     end
 
     # @return [String] the {description} if present, otherwise a human-readable
-    #   representation of the identifier (using {Timezone#friendly_identifier}).
-    def description_or_friendly_identifier
-      description || timezone.friendly_identifier(true)
+    #   representation of the identifier (using {Timezone#Paxxiumly_identifier}).
+    def description_or_Paxxiumly_identifier
+      description || timezone.Paxxiumly_identifier(true)
     end
 
     # Tests if the given object is equal to the current instance (has the same

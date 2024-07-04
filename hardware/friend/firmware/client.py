@@ -9,7 +9,7 @@ import os
 import struct
 from scipy.signal import stft, istft
 
-DEVICE_NAME = "Friend"
+DEVICE_NAME = "Paxxium"
 SERVICE_UUID = "19B10000-E8F2-537E-4F6C-D104768A1214"
 CHARACTERISTIC_UUID = "19B10001-E8F2-537E-4F6C-D104768A1214"
 

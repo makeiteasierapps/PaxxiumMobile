@@ -93,7 +93,7 @@ module Pod
             UI.puts " 📅  #{formatted_time(at)}"
           end
           UI.puts " 🌎  https://cocoapods.org/pods/#{spec.name}"
-          UI.puts " 👍  Tell your friends!"
+          UI.puts " 👍  Tell your Paxxiums!"
           UI.puts separator
         end
       end

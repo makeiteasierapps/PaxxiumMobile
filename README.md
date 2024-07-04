@@ -12,7 +12,7 @@ This document provides a preliminary overview of the mobile application developm
 ## Environment Setup
 
 ### Dependencies
-- From the friend directory, run `npm install` to install all dependencies
+- From the Paxxium directory, run `npm install` to install all dependencies
 
 - `python -m venv venv` to create a virtual environment
 - `source venv/bin/activate` to activate the virtual environment
@@ -58,7 +58,7 @@ Chat will always query the knowledge base. I would like to add the ability to tu
 
 ## BLE Device
 
-When tha app starts the device detection happens automatically. Your friend should be waiting for you when you get to settings. If no device is connected the app will use the phone's microphone.
+When tha app starts the device detection happens automatically. Your Paxxium should be waiting for you when you get to settings. If no device is connected the app will use the phone's microphone.
 
 ## Future Updates
 Further details and instructions will be provided as development progresses.

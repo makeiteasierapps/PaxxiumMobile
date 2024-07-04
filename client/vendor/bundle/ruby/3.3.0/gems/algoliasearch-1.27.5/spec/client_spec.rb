@@ -334,7 +334,7 @@ describe 'Client' do
     begin
       index.delete_index!
     rescue
-      # friends_2 does not exist
+      # Paxxiums_2 does not exist
     end
     res = Algolia.list_indexes
     is_include(res['items'], 'name', safe_index_name('àlgol?a')).should eq(false)
@@ -519,7 +519,7 @@ describe 'Client' do
       @index.clear_index
       Algolia.delete_index index.name
     rescue
-      # friends_2 does not exist
+      # Paxxiums_2 does not exist
     end
 
     @index.add_object!({:firstname => "Robert"})
@@ -598,7 +598,7 @@ describe 'Client' do
       @index.clear_index
       Algolia.delete_index! index.name
     rescue
-      # friends_2 does not exist
+      # Paxxiums_2 does not exist
     end
 
     @index.add_object!({:firstname => "Robert"})
@@ -618,12 +618,12 @@ describe 'Client' do
   end
 
   it "should move the index" do
-    @index.clear_index rescue "friends does not exist"
+    @index.clear_index rescue "Paxxiums does not exist"
     index = Algolia::Index.new(safe_index_name("àlgol?à"))
     begin
       Algolia.delete_index! index.name
     rescue
-      # friends_2 does not exist
+      # Paxxiums_2 does not exist
     end
 
     @index.add_object!({:firstname => "Robert"})
@@ -636,7 +636,7 @@ describe 'Client' do
   end
 
   it "should retrieve the object" do
-    @index.clear_index rescue "friends does not exist"
+    @index.clear_index rescue "Paxxiums does not exist"
     @index.add_object!({:firstname => "Robert"})
 
     res = @index.browse

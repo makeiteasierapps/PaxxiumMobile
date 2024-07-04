@@ -14,7 +14,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'Friend' do
+target 'Paxxium' do
   config = use_native_modules!
 
   pod 'react-native-worklets-core', :path => '../node_modules/react-native-worklets-core', :modular_headers => true
@@ -25,7 +25,7 @@ target 'Friend' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'FriendTests' do
+  target 'PaxxiumTests' do
     inherit! :complete
     # Pods for testing
   end

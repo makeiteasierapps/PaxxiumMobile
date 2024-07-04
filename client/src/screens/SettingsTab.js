@@ -55,7 +55,7 @@ const SettingsTab = () => {
 
         {Array.from(peripherals.values()).length === 0 && (
           <View style={styles.row}>
-            <Text style={styles.noPeripherals}>Is your Friend turned On?</Text>
+            <Text style={styles.noPeripherals}>Is your Paxxium turned On?</Text>
           </View>
         )}
 

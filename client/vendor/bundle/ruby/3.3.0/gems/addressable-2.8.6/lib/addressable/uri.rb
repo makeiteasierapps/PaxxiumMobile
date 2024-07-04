@@ -177,7 +177,7 @@ module Addressable
     ##
     # Converts an input to a URI. The input does not have to be a valid
     # URI — the method will use heuristics to guess what URI was intended.
-    # This is not standards-compliant, merely user-friendly.
+    # This is not standards-compliant, merely user-Paxxiumly.
     #
     # @param [String, Addressable::URI, #to_str] uri
     #   The URI string to parse.

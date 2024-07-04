@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib".freeze]
   s.authors = ["Eloy Duran".freeze]
   s.date = "2024-01-28"
-  s.description = "Xcodeproj lets you create and modify Xcode projects from Ruby. Script boring management tasks or build Xcode-friendly libraries. Also includes support for Xcode workspaces (.xcworkspace) and configuration files (.xcconfig).".freeze
+  s.description = "Xcodeproj lets you create and modify Xcode projects from Ruby. Script boring management tasks or build Xcode-Paxxiumly libraries. Also includes support for Xcode workspaces (.xcworkspace) and configuration files (.xcconfig).".freeze
   s.email = "eloy.de.enige@gmail.com".freeze
   s.executables = ["xcodeproj".freeze]
   s.files = ["bin/xcodeproj".freeze]

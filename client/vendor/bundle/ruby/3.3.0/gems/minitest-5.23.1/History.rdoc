@@ -241,7 +241,7 @@
 * 2 minor enhancements:
 
   * Block-assertions (eg assert_output) now error if raised inside the block. (casperisfine)
-  * Changed assert_raises to only catch Assertion since that covers Skip and friends.
+  * Changed assert_raises to only catch Assertion since that covers Skip and Paxxiums.
 
 * 3 bug fixes:
 
@@ -535,7 +535,7 @@
 
   * Added a note about bundle exec pitfall in ruby 2.2+. (searls)
   * Lazily start the parallel executor. (tenderlove)
-  * Make mocks more debugger-friendly (edward)
+  * Make mocks more debugger-Paxxiumly (edward)
   * Print out the current test run on interrupt. (riffraff)
 
 * 3 bug fixes:

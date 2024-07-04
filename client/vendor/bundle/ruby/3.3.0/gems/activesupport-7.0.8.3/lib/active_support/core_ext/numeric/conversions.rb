@@ -75,7 +75,7 @@ module ActiveSupport
     #  1111.2345.to_fs(:rounded, precision: 2, separator: ',', delimiter: '.')
     #  # => "1.111,23"
     #
-    #  Human-friendly size in Bytes:
+    #  Human-Paxxiumly size in Bytes:
     #  123.to_fs(:human_size)                                    # => "123 Bytes"
     #  1234.to_fs(:human_size)                                   # => "1.21 KB"
     #  12345.to_fs(:human_size)                                  # => "12.1 KB"
@@ -91,7 +91,7 @@ module ActiveSupport
     #  1234567890123.to_fs(:human_size, precision: 5)            # => "1.1228 TB"
     #  524288000.to_fs(:human_size, precision: 5)                # => "500 MB"
     #
-    #  Human-friendly format:
+    #  Human-Paxxiumly format:
     #  123.to_fs(:human)                                       # => "123"
     #  1234.to_fs(:human)                                      # => "1.23 Thousand"
     #  12345.to_fs(:human)                                     # => "12.3 Thousand"

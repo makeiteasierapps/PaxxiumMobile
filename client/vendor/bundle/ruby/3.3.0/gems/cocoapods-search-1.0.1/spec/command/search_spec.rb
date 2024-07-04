@@ -70,7 +70,7 @@ module Pod
         output.should.include? 'BananaLib'
       end
 
-      it 'shows a friendly message when locally searching with invalid regex' do
+      it 'shows a Paxxiumly message when locally searching with invalid regex' do
         lambda { run_command('search', '--regex', '+') }.should.raise CLAide::Help
       end
 

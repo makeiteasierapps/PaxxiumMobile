@@ -2,9 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Friend.xcodeproj">
+      location = "group:/Users/shaunoffenbacher/Desktop/Projects/PaxxiumMobile/client/ios/Paxxium.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Paxxium.xcodeproj">
    </FileRef>
 </Workspace>

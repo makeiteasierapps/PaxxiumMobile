@@ -55,7 +55,7 @@ Added:
     * use custom global typedefs
     * use non-frozen FFI::Library based modules
 * Allow type retrieval of attached functions+variables. #1023
-* Make FFI classes `GC.compact` friendly. #1021
+* Make FFI classes `GC.compact` Paxxiumly. #1021
 * Update libffi and disable custom trampoline when using libffi closure allocation. #1020
   This is because libffi changed the way how closures are allocated to static trampolines.
 * Add types.conf for loongarch64-linux. #943

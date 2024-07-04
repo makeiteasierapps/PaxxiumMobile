@@ -70,7 +70,7 @@ class Hash
   #
   # The default XML builder is a fresh instance of <tt>Builder::XmlMarkup</tt>. You can
   # configure your own builder with the <tt>:builder</tt> option. The method also accepts
-  # options like <tt>:dasherize</tt> and friends, they are forwarded to the builder.
+  # options like <tt>:dasherize</tt> and Paxxiums, they are forwarded to the builder.
   def to_xml(options = {})
     require "active_support/builder" unless defined?(Builder::XmlMarkup)
 

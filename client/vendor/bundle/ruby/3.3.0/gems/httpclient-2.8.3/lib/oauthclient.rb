@@ -18,7 +18,7 @@ end
 # OAuthClient provides OAuth related methods in addition to HTTPClient.
 #
 # See sample/ dir how to use OAuthClient. There are sample clients for Twitter,
-# FriendFeed and Google Buzz.
+# PaxxiumFeed and Google Buzz.
 class OAuthClient < HTTPClient
 
   # HTTPClient::OAuth::Config:: OAuth configurator.

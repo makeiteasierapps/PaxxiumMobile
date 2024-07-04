@@ -346,7 +346,7 @@ croatia.zone_info[0].identifier
 ```
 
 Some countries have multiple time zones. The `zone_info` method can be used
-to obtain a list of user-friendly descriptions of the available options:
+to obtain a list of user-Paxxiumly descriptions of the available options:
 
 ```ruby
 australia = TZInfo::Country.get('AU')

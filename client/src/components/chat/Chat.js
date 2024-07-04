@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import {ChatContext} from '../../contexts/ChatContext';
-import {formatBlockMessage} from './utils/messageFormatter';
 import AgentMessage from './AgentMessage';
 import MessageInput from './MessageInput';
 import UserMessage from './UserMessage';
@@ -15,7 +14,15 @@ import ChatBar from './ChatBar';
 const Chat = ({route}) => {
   const {chat_name: chatName, chatId} = route.params;
   const nodeRef = useRef(null);
-  const {messages} = useContext(ChatContext);
+  const {messages, setSelectedChatId} = useContext(ChatContext);
+
+  useEffect(() => {
+    setSelectedChatId(chatId);
+
+    return () => {
+      setSelectedChatId(null);
+    };
+  }, []);
 
   // scrolls chat window to the bottom
   useEffect(() => {
@@ -34,14 +41,12 @@ const Chat = ({route}) => {
         <ChatBar chatName={chatName} chatId={chatId} />
         <ScrollView ref={nodeRef} style={styles.messagesContainer}>
           {messages[chatId]?.map((message, index) => {
-            let formattedMessage = message;
             if (message.type === 'database') {
               if (message.message_from === 'agent') {
-                formattedMessage = formatBlockMessage(message);
                 return (
                   <AgentMessage
                     key={`agent${index}`}
-                    message={formattedMessage}
+                    message={message}
                     id={chatId}
                   />
                 );

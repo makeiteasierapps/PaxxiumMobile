@@ -16,9 +16,9 @@ const AudioCircle = () => {
   const porcupineRef = useRef(null);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
-  const API_KEY = process.env.API_KEY;
+  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const samUrl =
-    process.env.LOCAL_DEV === 'True' ? BACKEND_URL : BACKEND_URL_PROD;
+    process.env.LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
 
   const USER_AGENT = process.env.USER_AGENT;
   const processErrorCallback = error => {
@@ -136,7 +136,7 @@ const AudioCircle = () => {
     console.log('Silence detected, sending message:', message);
 
     try {
-      const response = await fetch(`${samUrl}/sam`, {
+      const response = await fetch(`${protocol}://${samUrl}/sam`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

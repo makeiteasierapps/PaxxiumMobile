@@ -16,6 +16,8 @@ export const useMomentsManager = () => {
       ? `${BACKEND_URL}:30001`
       : `${BACKEND_URL_PROD}`;
 
+  const userAgent = process.env.USER_AGENT;
+
   useEffect(() => {
     // deleteMoments();
     fetchMoments();
@@ -29,7 +31,7 @@ export const useMomentsManager = () => {
       try {
         const response = await axios.get(`${momentUrl}/moments`, {
           headers: {
-            'X-API-Key': API_KEY,
+            'User-Agent': userAgent,
           },
         });
         if (response.status === 200 && response.data) {
@@ -55,7 +57,7 @@ export const useMomentsManager = () => {
         },
         {
           headers: {
-            'X-API-Key': API_KEY,
+            'User-Agent': userAgent,
           },
         },
       );
@@ -81,7 +83,7 @@ export const useMomentsManager = () => {
         },
         {
           headers: {
-            'X-API-Key': API_KEY,
+            'User-Agent': userAgent,
           },
         },
       );
@@ -105,7 +107,7 @@ export const useMomentsManager = () => {
       const response = await axios.delete(`${momentUrl}/moments`, {
         data: {id: momentId},
         headers: {
-          'X-API-Key': API_KEY,
+          'User-Agent': userAgent,
         },
       });
       if (response.status === 200) {

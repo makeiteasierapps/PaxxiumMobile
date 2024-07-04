@@ -1,10 +1,12 @@
 import {useState, useCallback, useRef, useContext, useEffect} from 'react';
+import {URL} from 'react-native-url-polyfill';
 import axios from 'axios';
 import {SnackbarContext} from '../contexts/SnackbarContext';
 import {AuthContext} from '../contexts/AuthContext';
 import {useSecureStorage} from './useSecureStorage';
-import {processToken} from '../components/chat/utils/processToken';
-import {BACKEND_URL, BACKEND_URL_PROD} from '@env';
+import {processIncomingStream} from '../components/chat/utils/processIncomingStream.js';
+import { io } from 'socket.io-client';
+import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV} from '@env';
 
 export const useChatManager = () => {
   const {showSnackbar} = useContext(SnackbarContext);
@@ -12,17 +14,13 @@ export const useChatManager = () => {
   const {storeItem, retrieveItem, clearLocalChat, deleteLocalChat} =
     useSecureStorage();
   const [chatArray, setChatArray] = useState([]);
+  const [selectedChatId, setSelectedChatId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState({});
-  const [insideCodeBlock, setInsideCodeBlock] = useState(false);
-  const ignoreNextTokenRef = useRef(false);
-  const languageRef = useRef(null);
+  const [socket, setSocket] = useState(null);
 
-  const API_KEY = process.env.API_KEY;
-  const chatUrl =
-    process.env.LOCAL_DEV === 'True'
-      ? `${BACKEND_URL}:30000`
-      : BACKEND_URL_PROD;
+  const userAgent = process.env.USER_AGENT;
+  const backendUrl = LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
 
   useEffect(() => {
     setIsLoading(true);
@@ -36,6 +34,36 @@ export const useChatManager = () => {
       });
   }, [userId]);
 
+  useEffect(() => {
+    
+    const newSocket = io(`ws://${backendUrl}`);
+
+    setSocket(newSocket);
+
+    newSocket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+    });
+
+    newSocket.on('connect_error', error => {
+      console.log('Connect error', error);
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (socket && selectedChatId) {
+      socket.emit('join_room', {chatId: selectedChatId});
+    }
+  }, [socket, selectedChatId]);
+
+  // manage messages
   const addMessage = async (chatId, newMessage) => {
     setMessages(prevMessageParts => {
       return {
@@ -45,6 +73,88 @@ export const useChatManager = () => {
     });
   };
 
+  const sendMessage = async (chatId, input) => {
+    if (!socket) return;
+
+    try {
+      const userMessage = {
+        content: input,
+        message_from: 'user',
+        time_stamp: new Date().toISOString(),
+        type: 'database',
+      };
+      addMessage(chatId, userMessage);
+
+      const chatHistory = getChatHistory(chatId);
+
+      socket.emit('chat_request', {
+        chatId: chatId,
+        projectId: '666e139da8a159c87447c8c1',
+        dbName: 'paxxium',
+        chatHistory: chatHistory,
+        userMessage: userMessage,
+        saveToDb: false,
+        createVectorPipeline: true,
+      });
+    } catch (error) {
+      console.error(error);
+      showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+    }
+  };
+
+  const handleStreamingResponse = useCallback(async data => {
+    if (data.type === 'end_of_stream') {
+      console.log('data', data);
+    } else {
+      setMessages(prevMessage => {
+        const newMessageParts = processIncomingStream(prevMessage, '1', data);
+        localStorage.setItem('messages', JSON.stringify(newMessageParts));
+        return newMessageParts;
+      });
+    }
+
+    // Update chatArray state to reflect the new messages
+    setChatArray(prevChatArray => {
+      const updatedChatArray = prevChatArray.map(chat => {
+        if (chat.chatId === selectedChatId) {
+          return {
+            ...chat,
+            messages: updatedMessages,
+          };
+        }
+        return chat;
+      });
+
+      // Save updated chatArray to local storage
+      (async () => {
+        try {
+          await storeItem('chatArray', updatedChatArray);
+        } catch (error) {
+          console.error('Failed to save chat array:', error);
+        }
+      })();
+
+      return updatedChatArray;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('chat_response', handleStreamingResponse);
+
+    return () => {
+      socket.off('chat_response', handleStreamingResponse);
+    };
+  }, [handleStreamingResponse, socket]);
+
+  // Get the messages for a specific chat
+  // Sent in as chat history
+  const getChatHistory = chatId => {
+    return messages[chatId] || [];
+  };
+
+  // manage chat
   const getChats = useCallback(async () => {
     if (!userId) {
       return;
@@ -77,13 +187,13 @@ export const useChatManager = () => {
       console.error(error);
       showSnackbar(`Network or fetch error: ${error.message}`, 'error');
     }
-  }, [chatUrl, setChatArray, setMessages, showSnackbar, userId]);
+  }, [setChatArray, setMessages, showSnackbar, userId]);
 
   const fetchChatsFromDB = async () => {
-    const response = await axios.get(`${chatUrl}/chatMobile`, {
+    const response = await axios.get(`https://${backendUrl}/chat`, {
       headers: {
         userId: userId,
-        'X-API-Key': API_KEY,
+        'User-Agent': userAgent,
       },
     });
 
@@ -105,131 +215,12 @@ export const useChatManager = () => {
     return data;
   };
 
-  const sendMessage = async (chatId, input) => {
-    const userMessage = {
-      content: input,
-      message_from: 'user',
-      time_stamp: new Date().toISOString(),
-      type: 'database',
-    };
-    addMessage(chatId, userMessage);
-
-    const chatHistory = await getMessages(chatId);
-
-    try {
-      const response = await sendUserMessage(chatId, userMessage, chatHistory);
-      await handleStreamingResponse(response, chatId);
-    } catch (error) {
-      console.error(error);
-      showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-    }
-  };
-
-  // using fetch instead of axios because axios doesn't support streaming
-  const sendUserMessage = async (chatId, userMessage, chatHistory) => {
-    const response = await fetch(`${chatUrl}/chatMobile/messages`, {
-      reactNative: {textStreaming: true},
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': API_KEY,
-      },
-      body: JSON.stringify({
-        chatId: chatId,
-        saveToDb: false,
-        dbName: 'friend',
-        chatHistory: chatHistory,
-        userMessage: userMessage,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to send message');
-    }
-    return response;
-  };
-
-  const handleStreamingResponse = async (response, chatId) => {
-    const reader = response.body.getReader();
-    let completeMessage = '';
-    while (true) {
-      const {done, value} = await reader.read();
-      if (done) {
-        break;
-      }
-      const decodedValue = new TextDecoder('utf-8').decode(value);
-      const jsonChunks = decodedValue
-        .split('\n')
-        .filter(line => line.trim() !== '');
-
-      const messages = jsonChunks.map(chunk => {
-        const messageObj = JSON.parse(chunk);
-        processToken(
-          messageObj,
-          setInsideCodeBlock,
-          insideCodeBlock,
-          setMessages,
-          chatId,
-          ignoreNextTokenRef,
-          languageRef,
-        );
-        return messageObj.content;
-      });
-      completeMessage += messages.join('');
-    }
-    await updateMessagesStateAndStorage(chatId, completeMessage);
-  };
-
-  const updateMessagesStateAndStorage = async (chatId, completeMessage) => {
-    setMessages(prevMessages => {
-      const updatedMessages = [
-        ...(prevMessages[chatId] || []).slice(0, -1),
-        {
-          content: completeMessage,
-          message_from: 'agent',
-          type: 'database',
-        },
-      ];
-
-      const newMessagesState = {
-        ...prevMessages,
-        [chatId]: updatedMessages,
-      };
-
-      // Update chatArray state to reflect the new messages
-      setChatArray(prevChatArray => {
-        const updatedChatArray = prevChatArray.map(chat => {
-          if (chat.chatId === chatId) {
-            return {
-              ...chat,
-              messages: updatedMessages,
-            };
-          }
-          return chat;
-        });
-
-        // Save updated chatArray to local storage
-        (async () => {
-          try {
-            await storeItem('chatArray', updatedChatArray);
-          } catch (error) {
-            console.error('Failed to save chat array:', error);
-          }
-        })();
-
-        return updatedChatArray;
-      });
-
-      return newMessagesState;
-    });
-  };
-
   const clearChat = async chatId => {
     try {
-      const response = await axios.delete(`${chatUrl}/chatMobile/messages`, {
+      const response = await axios.delete(`https://${backendUrl}/messages`, {
         data: {chatId},
         headers: {
-          'X-API-Key': API_KEY,
+          'User-Agent': userAgent,
         },
       });
 
@@ -263,10 +254,10 @@ export const useChatManager = () => {
 
   const deleteChat = async chatId => {
     try {
-      const response = await axios.delete(`${chatUrl}/chatMobile`, {
+      const response = await axios.delete(`https://${backendUrl}/chat`, {
         data: {chatId},
         headers: {
-          'X-API-Key': API_KEY,
+          'User-Agent': userAgent,
         },
       });
 
@@ -291,7 +282,7 @@ export const useChatManager = () => {
   const createChat = async (model, chatName, userId) => {
     try {
       const response = await axios.post(
-        `${chatUrl}/chatMobile`,
+        `https://${backendUrl}/chat`,
         {
           model,
           chatName,
@@ -300,7 +291,7 @@ export const useChatManager = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            'X-API-Key': API_KEY,
+            'User-Agent': userAgent,
           },
         },
       );
@@ -321,12 +312,6 @@ export const useChatManager = () => {
     }
   };
 
-  // Get the messages for a specific chat
-  // Sent in as chat history
-  const getMessages = chatId => {
-    return messages[chatId] || [];
-  };
-
   return {
     chatArray,
     setChatArray,
@@ -337,5 +322,6 @@ export const useChatManager = () => {
     createChat,
     getChats,
     isLoading,
+    setSelectedChatId,
   };
 };

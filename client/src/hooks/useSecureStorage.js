@@ -10,6 +10,14 @@ export const useSecureStorage = () => {
     await EncryptedStorage.removeItem('moments');
   };
 
+  const deleteMessages = async () => {
+    await EncryptedStorage.removeItem('messages');
+  };
+
+  const deleteChatArray = async () => {
+    await EncryptedStorage.removeItem('chatArray');
+  };
+
   const storeItem = async (item, data) => {
     try {
       await EncryptedStorage.setItem(item, JSON.stringify(data));
@@ -69,5 +77,7 @@ export const useSecureStorage = () => {
     deleteLocalChat,
     deleteUserData,
     deleteMoments,
+    deleteMessages,
+    deleteChatArray,
   };
 };

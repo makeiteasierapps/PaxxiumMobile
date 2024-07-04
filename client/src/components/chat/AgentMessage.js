@@ -7,7 +7,6 @@ import SyntaxHighlighter from 'react-native-syntax-highlighter';
 import {prism} from 'react-syntax-highlighter/styles/prism';
 
 const AgentMessage = ({message}) => {
-
   return (
     <View style={[styles.messageContainer, {backgroundColor: 'darkgray'}]}>
       <FontAwesomeIcon
@@ -18,21 +17,23 @@ const AgentMessage = ({message}) => {
       />
 
       <View style={styles.messageContent}>
-        {message.map((msg, index) => {
-          if (msg.type === 'text') {
-            return <Text key={`text${index}`}>{msg.content}</Text>;
-          } else if (msg.type === 'code') {
-            return (
-              <SyntaxHighlighter
-                language={msg.language || 'markdown'}
-                style={prism}
-                highlighter="prism">
-                {msg.content}
-              </SyntaxHighlighter>
-            );
-          }
-          return null;
-        })}
+        {Array.isArray(message.content)
+          ? message.content.map((msg, index) => {
+              if (msg.type === 'text') {
+                return <Text key={`text${index}`}>{msg.content}</Text>;
+              } else if (msg.type === 'code') {
+                return (
+                  <SyntaxHighlighter
+                    language={msg.language || 'markdown'}
+                    style={prism}
+                    highlighter="prism">
+                    {msg.content}
+                  </SyntaxHighlighter>
+                );
+              }
+              return null;
+            })
+          : null}
       </View>
     </View>
   );

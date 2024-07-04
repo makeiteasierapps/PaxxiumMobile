@@ -5,7 +5,7 @@ import {SnackbarContext} from '../contexts/SnackbarContext';
 import {AuthContext} from '../contexts/AuthContext';
 import {useSecureStorage} from './useSecureStorage';
 import {processIncomingStream} from '../components/chat/utils/processIncomingStream.js';
-import { io } from 'socket.io-client';
+import {io} from 'socket.io-client';
 import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV} from '@env';
 
 export const useChatManager = () => {
@@ -14,7 +14,7 @@ export const useChatManager = () => {
   const {storeItem, retrieveItem, clearLocalChat, deleteLocalChat} =
     useSecureStorage();
   const [chatArray, setChatArray] = useState([]);
-  const [selectedChatId, setSelectedChatId] = useState(null);
+  const selectedChatId = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState({});
   const [socket, setSocket] = useState(null);
@@ -35,7 +35,6 @@ export const useChatManager = () => {
   }, [userId]);
 
   useEffect(() => {
-    
     const newSocket = io(`ws://${backendUrl}`);
 
     setSocket(newSocket);
@@ -58,10 +57,10 @@ export const useChatManager = () => {
   }, []);
 
   useEffect(() => {
-    if (socket && selectedChatId) {
-      socket.emit('join_room', {chatId: selectedChatId});
+    if (socket && selectedChatId.current) {
+      socket.emit('join_room', {chatId: selectedChatId.current});
     }
-  }, [socket, selectedChatId]);
+  }, [socket, selectedChatId.current]);
 
   // manage messages
   const addMessage = async (chatId, newMessage) => {
@@ -104,38 +103,44 @@ export const useChatManager = () => {
 
   const handleStreamingResponse = useCallback(async data => {
     if (data.type === 'end_of_stream') {
-      console.log('data', data);
+      console.log('end of stream');
     } else {
-      setMessages(prevMessage => {
-        const newMessageParts = processIncomingStream(prevMessage, '1', data);
-        localStorage.setItem('messages', JSON.stringify(newMessageParts));
+      let newMessageParts;
+      setMessages(prevMessages => {
+        newMessageParts = processIncomingStream(
+          prevMessages,
+          selectedChatId.current,
+          data,
+        );
+
+        storeItem('messages', JSON.stringify(newMessageParts));
         return newMessageParts;
       });
-    }
 
-    // Update chatArray state to reflect the new messages
-    setChatArray(prevChatArray => {
-      const updatedChatArray = prevChatArray.map(chat => {
-        if (chat.chatId === selectedChatId) {
-          return {
-            ...chat,
-            messages: updatedMessages,
-          };
-        }
-        return chat;
+      // Update chatArray state to reflect the new messages
+      setChatArray(prevChatArray => {
+        const updatedChatArray = prevChatArray.map(chat => {
+          if (chat.chatId === selectedChatId.current) {
+            return {
+              ...chat,
+              messages: newMessageParts[selectedChatId.current],
+            };
+          }
+          return chat;
+        });
+
+        // Save updated chatArray to local storage
+        (async () => {
+          try {
+            await storeItem('chatArray', updatedChatArray);
+          } catch (error) {
+            console.error('Failed to save chat array:', error);
+          }
+        })();
+
+        return updatedChatArray;
       });
-
-      // Save updated chatArray to local storage
-      (async () => {
-        try {
-          await storeItem('chatArray', updatedChatArray);
-        } catch (error) {
-          console.error('Failed to save chat array:', error);
-        }
-      })();
-
-      return updatedChatArray;
-    });
+    }
   }, []);
 
   useEffect(() => {
@@ -162,7 +167,7 @@ export const useChatManager = () => {
 
     try {
       const cachedChats = await retrieveItem('chatArray');
-      if (cachedChats) {
+      if (cachedChats && cachedChats.length > 0) {
         setChatArray(cachedChats);
 
         const cachedMessages = cachedChats.reduce((acc, chat) => {
@@ -190,7 +195,7 @@ export const useChatManager = () => {
   }, [setChatArray, setMessages, showSnackbar, userId]);
 
   const fetchChatsFromDB = async () => {
-    const response = await axios.get(`https://${backendUrl}/chat`, {
+    const response = await axios.get(`http://${backendUrl}/chat`, {
       headers: {
         userId: userId,
         'User-Agent': userAgent,
@@ -217,14 +222,14 @@ export const useChatManager = () => {
 
   const clearChat = async chatId => {
     try {
-      const response = await axios.delete(`https://${backendUrl}/messages`, {
+      const response = await axios.delete(`http://${backendUrl}/messages`, {
         data: {chatId},
         headers: {
           'User-Agent': userAgent,
         },
       });
 
-      if (!response.ok) throw new Error('Failed to clear messages');
+      if (response.status !== 200) throw new Error('Failed to clear messages');
 
       // Update the chatArray state
       setChatArray(prevChatArray => {
@@ -254,7 +259,7 @@ export const useChatManager = () => {
 
   const deleteChat = async chatId => {
     try {
-      const response = await axios.delete(`https://${backendUrl}/chat`, {
+      const response = await axios.delete(`http://${backendUrl}/chat`, {
         data: {chatId},
         headers: {
           'User-Agent': userAgent,
@@ -282,7 +287,7 @@ export const useChatManager = () => {
   const createChat = async (model, chatName, userId) => {
     try {
       const response = await axios.post(
-        `https://${backendUrl}/chat`,
+        `http://${backendUrl}/chat`,
         {
           model,
           chatName,
@@ -322,6 +327,6 @@ export const useChatManager = () => {
     createChat,
     getChats,
     isLoading,
-    setSelectedChatId,
+    selectedChatId,
   };
 };

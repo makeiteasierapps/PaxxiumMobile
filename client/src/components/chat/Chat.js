@@ -14,13 +14,12 @@ import ChatBar from './ChatBar';
 const Chat = ({route}) => {
   const {chat_name: chatName, chatId} = route.params;
   const nodeRef = useRef(null);
-  const {messages, setSelectedChatId} = useContext(ChatContext);
-
+  const {messages, selectedChatId} = useContext(ChatContext);
   useEffect(() => {
-    setSelectedChatId(chatId);
+    selectedChatId.current = chatId;
 
     return () => {
-      setSelectedChatId(null);
+      selectedChatId.current = null;
     };
   }, []);
 
@@ -41,21 +40,10 @@ const Chat = ({route}) => {
         <ChatBar chatName={chatName} chatId={chatId} />
         <ScrollView ref={nodeRef} style={styles.messagesContainer}>
           {messages[chatId]?.map((message, index) => {
-            if (message.type === 'database') {
-              if (message.message_from === 'agent') {
-                return (
-                  <AgentMessage
-                    key={`agent${index}`}
-                    message={message}
-                    id={chatId}
-                  />
-                );
-              } else {
-                return <UserMessage key={`user${index}`} message={message} />;
-              }
-            } else {
-              return <AgentMessage key={`stream${index}`} message={message} />;
+            if (message.message_from === 'user') {
+              return <UserMessage key={`user${index}`} message={message} />;
             }
+            return <AgentMessage key={`stream${index}`} message={message} />;
           })}
         </ScrollView>
         <MessageInput chatId={chatId} />

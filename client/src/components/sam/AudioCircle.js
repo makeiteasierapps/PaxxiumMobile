@@ -134,7 +134,7 @@ const AudioCircle = () => {
     console.log('Silence detected, sending message:', message);
 
     try {
-      const response = await fetch(`http://${backendUrl}/sam`, {
+      const response = await fetch(`https://${backendUrl}/sam`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -6,7 +6,7 @@ import {AuthContext} from '../contexts/AuthContext';
 import {useSecureStorage} from './useSecureStorage';
 import {processIncomingStream} from '../components/chat/utils/processIncomingStream.js';
 import {io} from 'socket.io-client';
-import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV} from '@env';
+import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV, USER_AGENT} from '@env';
 
 export const useChatManager = () => {
   const {showSnackbar} = useContext(SnackbarContext);
@@ -19,8 +19,9 @@ export const useChatManager = () => {
   const [messages, setMessages] = useState({});
   const [socket, setSocket] = useState(null);
 
-  const userAgent = process.env.USER_AGENT;
   const backendUrl = LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
+
+  console.log(backendUrl);
 
   useEffect(() => {
     setIsLoading(true);
@@ -35,7 +36,11 @@ export const useChatManager = () => {
   }, [userId]);
 
   useEffect(() => {
-    const newSocket = io(`ws://${backendUrl}`);
+    const newSocket = io(`wss://${backendUrl}`, {
+      extraHeaders: {
+        'User-Agent': USER_AGENT,
+      },
+    });
 
     setSocket(newSocket);
 
@@ -195,10 +200,10 @@ export const useChatManager = () => {
   }, [setChatArray, setMessages, showSnackbar, userId]);
 
   const fetchChatsFromDB = async () => {
-    const response = await axios.get(`http://${backendUrl}/chat`, {
+    const response = await axios.get(`https://${backendUrl}/chat`, {
       headers: {
         userId: userId,
-        'User-Agent': userAgent,
+        'User-Agent': USER_AGENT,
       },
     });
 
@@ -222,10 +227,10 @@ export const useChatManager = () => {
 
   const clearChat = async chatId => {
     try {
-      const response = await axios.delete(`http://${backendUrl}/messages`, {
+      const response = await axios.delete(`https://${backendUrl}/messages`, {
         data: {chatId},
         headers: {
-          'User-Agent': userAgent,
+          'User-Agent': USER_AGENT,
         },
       });
 
@@ -259,10 +264,10 @@ export const useChatManager = () => {
 
   const deleteChat = async chatId => {
     try {
-      const response = await axios.delete(`http://${backendUrl}/chat`, {
+      const response = await axios.delete(`https://${backendUrl}/chat`, {
         data: {chatId},
         headers: {
-          'User-Agent': userAgent,
+          'User-Agent': USER_AGENT,
         },
       });
 
@@ -287,7 +292,7 @@ export const useChatManager = () => {
   const createChat = async (model, chatName, userId) => {
     try {
       const response = await axios.post(
-        `http://${backendUrl}/chat`,
+        `https://${backendUrl}/chat`,
         {
           model,
           chatName,
@@ -296,7 +301,7 @@ export const useChatManager = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            'User-Agent': userAgent,
+            'User-Agent': USER_AGENT,
           },
         },
       );

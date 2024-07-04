@@ -1,6 +1,6 @@
 import {useState, useContext, useEffect, useRef} from 'react';
 import axios from 'axios';
-import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV} from '@env';
+import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV, USER_AGENT} from '@env';
 import {SnackbarContext} from '../contexts/SnackbarContext';
 import {useSecureStorage} from './useSecureStorage';
 
@@ -13,8 +13,6 @@ export const useMomentsManager = () => {
 
   const backendUrl = LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
 
-  const userAgent = process.env.USER_AGENT;
-
   useEffect(() => {
     // deleteMoments();
     fetchMoments();
@@ -26,9 +24,9 @@ export const useMomentsManager = () => {
 
     if (!momentsData || momentsData.length === 0) {
       try {
-        const response = await axios.get(`http://${backendUrl}/moments`, {
+        const response = await axios.get(`https://${backendUrl}/moments`, {
           headers: {
-            'User-Agent': userAgent,
+            'User-Agent': USER_AGENT,
           },
         });
         if (response.status === 200 && response.data) {
@@ -48,13 +46,13 @@ export const useMomentsManager = () => {
   const addMoment = async moment => {
     try {
       const response = await axios.post(
-        `http://${backendUrl}/moments`,
+        `https://${backendUrl}/moments`,
         {
           newMoment: moment,
         },
         {
           headers: {
-            'User-Agent': userAgent,
+            'User-Agent': USER_AGENT,
           },
         },
       );
@@ -74,13 +72,13 @@ export const useMomentsManager = () => {
   const updateMoment = async moment => {
     try {
       const response = await axios.put(
-        `http://${backendUrl}/moments`,
+        `https://${backendUrl}/moments`,
         {
           moment,
         },
         {
           headers: {
-            'User-Agent': userAgent,
+            'User-Agent': USER_AGENT,
           },
         },
       );
@@ -101,10 +99,10 @@ export const useMomentsManager = () => {
 
   const deleteMoment = async momentId => {
     try {
-      const response = await axios.delete(`http://${backendUrl}/moments`, {
+      const response = await axios.delete(`https://${backendUrl}/moments`, {
         data: {id: momentId},
         headers: {
-          'User-Agent': userAgent,
+          'User-Agent': USER_AGENT,
         },
       });
       if (response.status === 200) {

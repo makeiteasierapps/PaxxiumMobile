@@ -17,7 +17,7 @@ const AudioCircle = () => {
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
 
-  const backendUrl = LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
+  const backendUrl = LOCAL_DEV === 'true' ? `http://${BACKEND_URL}` : `https://${BACKEND_URL_PROD}`;
 
   const USER_AGENT = process.env.USER_AGENT;
   const processErrorCallback = error => {
@@ -134,7 +134,7 @@ const AudioCircle = () => {
     console.log('Silence detected, sending message:', message);
 
     try {
-      const response = await fetch(`https://${backendUrl}/sam`, {
+      const response = await fetch(`${backendUrl}/sam`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

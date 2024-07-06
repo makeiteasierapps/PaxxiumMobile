@@ -46,7 +46,7 @@ export const useAuthentication = () => {
   };
 
   const signOut = async () => {
-    let users = await retrieveUsers();
+    let users = await retrieveItem('users');
     const loggedInUser = Object.values(users).find(user => user.isLoggedIn);
     if (loggedInUser) {
       loggedInUser.isLoggedIn = false;
@@ -58,7 +58,8 @@ export const useAuthentication = () => {
   };
 
   const signIn = async (email, password) => {
-    let users = await retrieveUsers();
+    let users = await retrieveItem('users');
+    console.log('users', users);
     const user = Object.values(users).find(
       user => user.email === email && user.password === password,
     );

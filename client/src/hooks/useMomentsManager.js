@@ -11,7 +11,7 @@ export const useMomentsManager = () => {
   const {storeItem, retrieveItem, deleteMoments} = useSecureStorage();
   const {showSnackbar} = useContext(SnackbarContext);
 
-  const backendUrl = LOCAL_DEV === 'true' ? BACKEND_URL : BACKEND_URL_PROD;
+  const backendUrl = LOCAL_DEV === 'true' ? `http://${BACKEND_URL}` : `https://${BACKEND_URL_PROD}`;
 
   useEffect(() => {
     // deleteMoments();
@@ -24,7 +24,7 @@ export const useMomentsManager = () => {
 
     if (!momentsData || momentsData.length === 0) {
       try {
-        const response = await axios.get(`https://${backendUrl}/moments`, {
+        const response = await axios.get(`${backendUrl}/moments`, {
           headers: {
             'User-Agent': USER_AGENT,
           },
@@ -46,7 +46,7 @@ export const useMomentsManager = () => {
   const addMoment = async moment => {
     try {
       const response = await axios.post(
-        `https://${backendUrl}/moments`,
+        `${backendUrl}/moments`,
         {
           newMoment: moment,
         },
@@ -72,7 +72,7 @@ export const useMomentsManager = () => {
   const updateMoment = async moment => {
     try {
       const response = await axios.put(
-        `https://${backendUrl}/moments`,
+        `${backendUrl}/moments`,
         {
           moment,
         },
@@ -99,7 +99,7 @@ export const useMomentsManager = () => {
 
   const deleteMoment = async momentId => {
     try {
-      const response = await axios.delete(`https://${backendUrl}/moments`, {
+      const response = await axios.delete(`${backendUrl}/moments`, {
         data: {id: momentId},
         headers: {
           'User-Agent': USER_AGENT,

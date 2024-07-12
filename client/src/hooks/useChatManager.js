@@ -10,7 +10,7 @@ import {BACKEND_URL, BACKEND_URL_PROD, LOCAL_DEV, USER_AGENT} from '@env';
 
 export const useChatManager = () => {
   const {showSnackbar} = useContext(SnackbarContext);
-  const {userId} = useContext(AuthContext);
+  const {uid} = useContext(AuthContext);
   const {storeItem, retrieveItem, clearLocalChat, deleteLocalChat} =
     useSecureStorage();
   const [chatArray, setChatArray] = useState([]);
@@ -38,7 +38,7 @@ export const useChatManager = () => {
         console.error('Error fetching chats:', error);
         setIsLoading(false);
       });
-  }, [userId]);
+  }, [uid]);
 
   useEffect(() => {
     const newSocket = io(`${wsBackendUrl}`, {
@@ -172,7 +172,7 @@ export const useChatManager = () => {
 
   // manage chat
   const getChats = useCallback(async () => {
-    if (!userId) {
+    if (!uid) {
       return;
     }
 
@@ -204,12 +204,12 @@ export const useChatManager = () => {
       console.error(error);
       showSnackbar(`Network or fetch error: ${error.message}`, 'error');
     }
-  }, [setChatArray, setMessages, showSnackbar, userId]);
+  }, [setChatArray, setMessages, showSnackbar, uid]);
 
   const fetchChatsFromDB = async () => {
     const response = await axios.get(`${backendUrl}/chat`, {
       headers: {
-        userId: userId,
+        'uid': uid,
         'User-Agent': USER_AGENT,
       },
     });
@@ -238,6 +238,8 @@ export const useChatManager = () => {
         data: {chatId},
         headers: {
           'User-Agent': USER_AGENT,
+          'uid': uid,
+          'dbName': 'paxxium',
         },
       });
 
@@ -275,6 +277,8 @@ export const useChatManager = () => {
         data: {chatId},
         headers: {
           'User-Agent': USER_AGENT,
+          'uid': uid,
+          'dbName': 'paxxium',
         },
       });
 
@@ -309,6 +313,8 @@ export const useChatManager = () => {
           headers: {
             'Content-Type': 'application/json',
             'User-Agent': USER_AGENT,
+            'uid': uid,
+            'dbName': 'paxxium',
           },
         },
       );

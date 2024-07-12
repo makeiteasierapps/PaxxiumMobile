@@ -7,11 +7,11 @@ import {AuthContext} from '../../contexts/AuthContext';
 const NewChatModal = ({visible, onClose}) => {
   const [chatName, setChatName] = useState('');
   const [model, setModel] = useState('GPT-3.5');
-  const {userId} = useContext(AuthContext);
+  const {uid} = useContext(AuthContext);
   const {createChat} = useContext(ChatContext);
 
   const handleCreate = () => {
-    createChat(model, chatName, userId);
+    createChat(model, chatName, uid);
     onClose();
   };
 

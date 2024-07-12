@@ -7,7 +7,7 @@ export const useAuthentication = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userId, setUserId] = useState(null);
+  const [uid, setUid] = useState(null);
   const {showSnackbar} = useContext(SnackbarContext);
   const {storeItem, retrieveItem} = useSecureStorage();
 
@@ -16,7 +16,7 @@ export const useAuthentication = () => {
       const users = await retrieveItem('users');
       const loggedInUser = Object.values(users).find(user => user.isLoggedIn);
       if (loggedInUser) {
-        setUserId(loggedInUser.userId);
+        setUid(loggedInUser.userId);
         setIsAuthorized(true);
         setLoggedIn(true);
       }
@@ -38,7 +38,7 @@ export const useAuthentication = () => {
       await storeItem('users', users);
       setIsAuthorized(true);
       setLoggedIn(true);
-      setUserId(newUserId);
+      setUid(newUserId);
     } catch (error) {
       showSnackbar('Error storing the user info', 'error');
       console.error('Error storing the user info', error);
@@ -54,7 +54,7 @@ export const useAuthentication = () => {
     }
     setIsAuthorized(false);
     setLoggedIn(false);
-    setUserId(null);
+    setUid(null);
   };
 
   const signIn = async (email, password) => {
@@ -68,7 +68,7 @@ export const useAuthentication = () => {
       await storeItem('users', users);
       setIsAuthorized(true);
       setLoggedIn(true);
-      setUserId(user.userId);
+      setUid(user.userId);
       showSnackbar('Login successful', 'success');
     } else {
       showSnackbar('Invalid credentials', 'error');
@@ -78,7 +78,7 @@ export const useAuthentication = () => {
   return {
     isAuthorized,
     loggedIn,
-    userId,
+    uid,
     registerUser,
     signOut,
     signIn,
